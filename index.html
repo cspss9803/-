@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>轉換為 PDF</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; position: relative; }
+        #container {
+            width: 210mm;
+            height: 297mm;
+            margin: 50px 0 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+        }
+        #content {
+            width: 100%;
+            max-height: 297mm;
+            overflow: hidden;
+            padding: 3mm 10mm;
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+        body { background-color: #ccc; overflow: auto; overscroll-behavior-y: contain; padding-bottom: 200px; }
+        .disable_select { user-select: none; }
+        .editable-input {
+            display: inline-block;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-weight: bolder;
+        }
+        .editable-td {
+            width: 100%;
+            display: inline-block;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            height: 24pt;
+            padding: 5pt 8pt 0;
+        }
+        #customerName::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            width: calc(100% + 48pt);
+            left: 0;
+            height: 2pt;
+            background-color: #b50000;
+        }
+        table, th, td { border-collapse: collapse; }
+        table { border: 1px solid #b50000; }
+        th{ user-select: none; background-color: #b50000; color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
+        th:first-child { border-left: 1px solid #b50000; }
+        th:last-child { border-right: 1px solid #b50000; }
+        td { height: 18pt; border: 1px solid #b50000; box-sizing: content-box; }
+        td:first-child { width: 14pt; text-align: center; font-size: 10pt; color: #b50000; font-weight: bolder; }
+        td:is(:nth-child(4), :nth-child(5), :nth-child(6)) { text-align: right; }
+        .chinese-number {display: inline-block; min-width: 18pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt; text-align: center;color: black;}
+        #sign {
+            min-width: 100pt;
+            font-size: 14pt;
+            letter-spacing: 1pt;
+            height: 18pt;
+            margin: 0 5pt 0 0;
+            padding: 0 20pt 10pt 10pt;
+            border-bottom: 1px solid #b50000;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<div id="container">
+    <div id="content">
+        <h1 class="disable_select" style="text-align: center; letter-spacing: 32pt; font-size: 32pt; color: #b50000;">估價單</h1>
+        <hr style="border: 1pt solid #b50000; margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%);">
+        <div style="display: flex; align-items: center;">
+            <div id="customerName" style="min-width: 150pt;font-size: 18pt;letter-spacing: 2pt;height: 32pt;padding: 5pt 16pt 0 16pt;" contenteditable="true" class="editable-input"></div>
+            <span class="disable_select" style="font-size: 18pt; white-space: nowrap; margin-left: 5pt; color: #b50000;">台照</span>
+        </div>
+        <div style="margin-top: 5pt;">
+            <span style="min-width: 36pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt;margin: 0 5pt 0 0;text-align: center;" contenteditable="true" class="editable-input"></span><span
+             style="font-size: 14pt;color: #b50000;" class="disable_select">年</span><span 
+             style="min-width: 28pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt;margin: 0 5pt 0;text-align: center;" contenteditable="true" class="editable-input"></span><span 
+             style="font-size: 14pt;color: #b50000;" class="disable_select">月</span><span 
+             style="min-width: 28pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt;margin: 0 5pt 0;text-align: center;" contenteditable="true" class="editable-input"></span><span 
+             style="font-size: 14pt;color: #b50000;" class="disable_select">日</span>
+        </div>
+        <table style="width: 100%; margin-top: 5pt;">
+            <tbody>
+                <tr>
+                    <th colspan="2">品名</th>
+                    <th>規格</th>
+                    <th>數量</th>
+                    <th>單價</th>
+                    <th>金額</th>
+                    <th>備註</th>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr style="height: 36pt;" class="disable_select">
+                    <td></td>
+                    <td colspan="5" style="padding: 0 5pt; color: #b50000; font-weight: bolder;">
+                        <span style="margin-right: 5pt;font-size: 12pt;">總計新臺幣</span>
+                        <span class="chinese-number" id="ch_7"></span>
+                        <span style="font-size: 14pt;color: #b50000;">仟</span>
+                        <span class="chinese-number" id="ch_6"></span>
+                        <span style="font-size: 14pt;color: #b50000;">佰</span>
+                        <span class="chinese-number" id="ch_5"></span>
+                        <span style="font-size: 14pt;color: #b50000;">拾</span>
+                        <span class="chinese-number" id="ch_4"></span>
+                        <span style="font-size: 14pt;color: #b50000;">萬</span>
+                        <span class="chinese-number" id="ch_3"></span>
+                        <span style="font-size: 14pt;color: #b50000;">千</span>
+                        <span class="chinese-number" id="ch_2"></span>
+                        <span style="font-size: 14pt;color: #b50000;">百</span>
+                        <span class="chinese-number" id="ch_1"></span>
+                        <span style="font-size: 14pt;color: #b50000;">拾</span>
+                        <span class="chinese-number" id="ch_0"></span>
+                        <span style="font-size: 14pt;color: #b50000;">元正</span>
+                    </td>
+                    <td>
+                        <span style="color: #b50000; font-weight: bolder; font-size: 14pt">NT$</span>
+                        <span style="font-weight: bolder; font-size: 14pt; word-wrap: break-word;" id="total"></span>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <div style="margin-top: 20pt;">
+            <span style="font-size: 14pt;color: #b50000; font-weight: bolder;">經手人: </span>
+            <span id="sign" style="font-size: 18pt;letter-spacing: 1pt;height: 24pt" contenteditable="true" class="editable-input"></span>
+        </div>
+    </div>
+</div>
+
+<button style="width: 210mm; height: 80px; top: 0; left: 50%; transform: translateX(-50%);font-size: 1.5rem; background-color: #b50000; border: 0; border-radius: 10px; color: #fff; font-weight: bolder; cursor: pointer" onclick="downloadPDF()">分享估價單</button>
+
+<script>
+async function downloadPDF() {
+    const element = document.getElementById('content');
+    // 將頁面捲掉最上方
+    window.scrollTo(0, 0);
+
+    element.style.left = '-2mm'
+    element.style.height = 'calc(297mm - 1mm)'
+
+    const pdfBlob = await html2pdf().from(element).toPdf().output('blob');
+    const file = new File([pdfBlob], '估價單.pdf', { type: 'application/pdf' });
+
+    navigator.share({
+        title: '估價單 PDF',
+        text: '請查看估價單。',
+        files: [file]
+    }).catch(err => console.error('分享失敗:', err));
+
+
+    // 下載完成後恢復原始樣式，讓網頁看起來正常
+    element.style.top = '0';
+    element.style.left = '0'
+    element.style.height = 'auto'; // 恢復原始高度
+}
+window.onload = function() {
+    for(let i = 0; i < 20; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="disable_select">${i + 1}</td>
+            <td style="max-width: 180px; width: 180px;"><span contenteditable="true" class="editable-td"></span></td>
+            <td style="max-width: 70px; width: 70px; text-align: center;"><span contenteditable="true" class="editable-td"></span></td>
+            <td style="max-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count"></span></td>
+            <td style="max-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money"></span></td>
+            <td style="max-width: 80px; width: 80px;"><span class="single_total"></span></td>
+            <td style="max-width: 100px; width: 100px;"><span contenteditable="true" class="editable-td"></span></td>
+        `;
+        document.querySelector('table tbody').appendChild(tr);
+    }
+
+    document.querySelectorAll('.count').forEach(span => {
+        span.addEventListener('input', e => updateSingleTotal(span.parentNode.parentNode) )
+    });
+    document.querySelectorAll('.money').forEach(span => {
+        span.addEventListener('input', e => {
+            let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
+            let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
+            if(formattedValue === '非數值') { formattedValue = ''; }
+            
+            setTimeout(() => {
+                span.innerText = formattedValue;
+                let range = document.createRange();
+                let sel = window.getSelection();
+                range.selectNodeContents(span);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                updateSingleTotal(span.parentNode.parentNode)
+            }, 0);
+        });
+    });
+
+};
+
+function updateSingleTotal(tr) {
+    const countElm = tr.querySelector('.count');
+    const moneyElm = tr.querySelector('.money');
+    const singleTotalElm = tr.querySelector('.single_total');
+
+    // 取得 count 裡的數字字元
+    const count = parseInt(countElm.innerText.replace(/[^0-9]+/g, '')) || 0;
+    
+    const money = parseInt(moneyElm.innerText.replace(/[^0-9]+/g, '')) || 0;
+    let singleTotal = (count * money).toLocaleString('zh-TW');
+    if(singleTotal === '非數值') { singleTotal = ''; }
+    if(singleTotal === '0') { singleTotal = ''; }
+    singleTotalElm.innerText = singleTotal;
+    updateChineseNumber();
+}
+
+function updateChineseNumber() {
+    document.querySelectorAll('.chinese-number').forEach(elm => elm.innerText = ''); // 清空所有中文數字顯示
+    document.getElementById('total').innerText = ''; // 清空總計顯示
+    const total = Array.from(document.querySelectorAll('.single_total'))
+        .reduce((sum, span) => sum + (parseInt(span.innerText.replace(/[^0-9]+/g, '')) || 0), 0);
+
+    const chineseNumbers = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
+    
+    const totalArray = `${total}`.split('').map(Number).reverse()
+    if(totalArray.length === 1 && totalArray[0] === 0) return
+    totalArray.forEach((num, index) => {
+        const chineseNumberElm = document.getElementById(`ch_${index}`);
+        if (chineseNumberElm) {
+            chineseNumberElm.innerText = chineseNumbers[num] || '零';
+        }
+    });
+    document.getElementById('total').innerText = total.toLocaleString('zh-TW');
+}
+</script>
+
+</body>
+</html>
