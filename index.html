@@ -5,177 +5,289 @@
     <title>轉換為 PDF</title>
     <style>
         * { box-sizing: border-box; margin: 0; position: relative; }
+        body { background-color: #ccc; overscroll-behavior-y: contain; padding: 50px 0 200px; }
+        h1 { text-align: center; letter-spacing: 32pt; font-size: 32pt; color: #b50000; }
+        hr { border: 1pt solid #b50000; margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%); }
         #container {
-            width: 210mm;
-            height: 297mm;
-            margin: 50px 0 50px;
-            left: 50%;
-            transform: translateX(-50%);
+            min-width: 210mm;
+            width: min-content;
+            height: min-content;
+            margin: 0 0 50px;
+            left: calc(50% + 270px + 32px);
+            transform: translateX(calc(-50%));
             background-color: white;
+            user-select: none;
         }
         #content {
             width: 100%;
-            max-height: 297mm;
-            overflow: hidden;
-            padding: 3mm 10mm;
+            padding: 3mm 10mm 10mm;
             background-color: white;
             font-family: Arial, sans-serif;
         }
-        body { background-color: #ccc; overflow: auto; overscroll-behavior-y: contain; padding-bottom: 200px; }
-        .disable_select { user-select: none; }
-        .editable-input {
-            display: inline-block;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            font-weight: bolder;
-        }
-        .editable-td {
-            width: 100%;
-            display: inline-block;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            height: 24pt;
-            padding: 5pt 8pt 0;
-        }
-        #customerName::before {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            width: calc(100% + 48pt);
-            left: 0;
-            height: 2pt;
-            background-color: #b50000;
-        }
+        [contenteditable="true"] { display: inline-block; word-wrap: break-word; white-space: pre-wrap; font-weight: bolder; }
+        #customerName { display: flex; align-items: center; }
+        #customerName [contenteditable="true"] { min-width: 150pt;font-size: 18pt;letter-spacing: 2pt;height: 32pt;padding: 5pt 16pt 0 16pt; }
+        #customerName [contenteditable="true"]::before { content: ""; position: absolute; bottom: 0; width: calc(100% + 48pt); left: 0; height: 2pt; background-color: #b50000; }
+        #customerName span:nth-child(even) { font-size: 18pt; white-space: nowrap; margin-left: 5pt; color: #b50000; }
+
+        .date { margin-top: 5pt; }
+        .date span:nth-child(even) { font-size: 14pt;color: #b50000; }
+        .date [contenteditable="true"] { font-size: 14pt;letter-spacing: 1pt;height: 18pt; text-align: center;margin: 0 5pt 0;min-width: 28pt; }
+        .date [contenteditable="true"]:nth-child(1) { min-width: 36pt;margin-right: 0; }
+
         table, th, td { border-collapse: collapse; }
-        table { border: 1px solid #b50000; }
-        th{ user-select: none; background-color: #b50000; color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
+        table { border: 1px solid #b50000; width: 100%; margin-top: 5pt; }
+        th{ background-color: #b50000; color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
         th:first-child { border-left: 1px solid #b50000; }
         th:last-child { border-right: 1px solid #b50000; }
         td { height: 18pt; border: 1px solid #b50000; box-sizing: content-box; }
         td:first-child { width: 14pt; text-align: center; font-size: 10pt; color: #b50000; font-weight: bolder; }
-        td:is(:nth-child(4), :nth-child(5), :nth-child(6)) { text-align: right; }
-        .chinese-number {display: inline-block; min-width: 18pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt; text-align: center;color: black;}
-        #sign {
-            min-width: 100pt;
-            font-size: 14pt;
-            letter-spacing: 1pt;
-            height: 18pt;
-            margin: 0 5pt 0 0;
-            padding: 0 20pt 10pt 10pt;
-            border-bottom: 1px solid #b50000;
+        .count, .money,  .single_total{ text-align: right; }
+        .unit { text-align: center; }
+        .single_total { font-weight: bolder; text-align: right; display: block; }
+        .editable-td { width: 100%; display: inline-block; white-space: nowrap; height: 24pt; padding: 5pt 8pt 0; }
+        tfoot #totalRow { height: 36pt; }
+        tfoot #totalRow td:nth-child(2) { padding: 0 5pt; color: #b50000; font-weight: bolder; }
+        tfoot #totalRow td:nth-child(2) span:nth-child(1) { margin-right: 5pt;font-size: 12pt; }
+        tfoot #totalRow td:nth-child(2) span:not([id], :nth-child(1)) { font-size: 14pt;color: #b50000; }
+        tfoot #totalRow td:nth-child(3) span:not(#total) { color: #b50000; font-weight: bolder; font-size: 14pt }
+        #total { font-weight: bolder; font-size: 14pt; word-wrap: nowrap; }
+
+        .chinese-number { display: inline-block; min-width: 18pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt; text-align: center;color: black; }
+        
+        #validDate { margin-top: 10pt; display: flex; }
+        #validDate .date { margin-top: 0; }
+        #validDate span:nth-child(1) { font-size: 12pt; color: #b50000; }
+        #validDate .date [contenteditable="true"] { color: black; }
+        #tax { margin-top: 5pt; }
+        input[type="checkbox"] { 
+            -webkit-appearance: none;
+            appearance: none;
+            margin-right: 5pt; 
+            aspect-ratio: 1/1; 
+            width: 18px; 
+            margin-right: -2pt; 
+            transform: translateY(-1px); 
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: white;
+            color: #fff;
+        }
+        input[type="checkbox"]:checked {
+            background-color: #b50000; /* 改變背景顏色 */
+            border: 1px solid #b50000;
+        }
+        input[type="checkbox"]:checked::before {
+            content: "";
+            position: absolute;
+            top: calc(50% + 1px);
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.813 417"><path style="fill:rgb(255,255,255)" d="M159.988 318.582c-3.988 4.012-9.43 6.25-15.082 6.25s-11.094-2.238-15.082-6.25L9.375 198.113c-12.5-12.5-12.5-32.77 0-45.246l15.082-15.086c12.504-12.5 32.75-12.5 45.25 0l75.2 75.203L348.104 9.781c12.504-12.5 32.77-12.5 45.25 0l15.082 15.086c12.5 12.5 12.5 32.766 0 45.246zm0 0"></path></svg>') no-repeat center center;
+        }
+        #tax span:not([contenteditable="true"]) { font-size: 12pt; color: #b50000; top: -3pt; }
+
+        #sign span:not([contenteditable="true"]) {font-size: 12pt;color: #b50000; }
+        #sign span:is([contenteditable="true"]) { min-width: 100pt; margin: 0 5pt 0 0; padding: 0 20pt 10pt 10pt; border-bottom: 1px solid #b50000; font-size: 18pt; height: 24pt; }
+        
+        #shareBtn { width: 210mm; height: 80px; top: 0; left: calc(50% + 270px + 32px);; transform: translateX(-50%);font-size: 1.5rem; background-color: #b50000; border: 0; border-radius: 10px; color: #fff; font-weight: bolder; cursor: pointer; display: block; }
+        #toggleRemark {
+            position: absolute;
+            top: 175px;
+            z-index: 1;
+            right: -32px;
+            transform: translateX(100%);
+            width: 120px;
+            height: 48px;
+            border: 0;
+            background-color: #00b5b5;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+        #toggleRemark::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: -24px;
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path style="fill:rgb(0, 0, 0);" d="M8.2,275.9l184.9,184.9c5.3,5.3,12.3,8.2,19.8,8.2c7.5,0,14.5-2.9,19.8-8.2l16.8-16.8c5.3-5.3,8.2-12.3,8.2-19.8c0-7.5-2.9-14.8-8.2-20L141.6,296h342.7c15.5,0,27.7-12.1,27.7-27.6v-23.7c0-15.5-12.2-28.8-27.7-28.8H140.4l109.1-108.7c5.3-5.3,8.2-12.1,8.2-19.6c0-7.5-2.9-14.4-8.2-19.7l-16.8-16.7c-5.3-5.3-12.3-8.2-19.8-8.2c-7.5,0-14.5,2.9-19.8,8.2L8.2,236.1C2.9,241.4,0,248.5,0,256C0,263.5,2.9,270.6,8.2,275.9L8.2,275.9z"/></svg>');
+        }
+        #addNewTr {
+            position: absolute;
+            bottom: 200px;
+            z-index: 1;
+            left: -32px;
+            transform: translateX(-100%);
+            width: 120px;
+            height: 48px;
+            border: 0;
+            background-color: #004eb5;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+        #removeTr {
+            position: absolute;
+            bottom: 260px;
+            z-index: 1;
+            left: -32px;
+            transform: translateX(-100%);
+            width: 120px;
+            height: 48px;
+            border: 0;
+            background-color: #b50000;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+        #clearAll {
+            position: absolute;
+            top: 175px;
+            z-index: 1;
+            left: -32px;
+            transform: translateX(-100%);
+            width: 120px;
+            height: 48px;
+            border: 0;
+            background-color: #ae00ff;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div id="container">
+    <button id="clearAll">全部清空</button>
+    <button id="toggleRemark">隱藏備註欄</button>
+    <button id="addNewTr">新增一行</button>
+    <button id="removeTr">刪除一行</button>
+    <div style="
+        width: 50px; 
+        height: 50px;
+        background-color: #004eb5;
+        position: absolute;
+        top: -100px;
+        left: calc(100% + 140px);
+
+    "></div>
     <div id="content">
-        <h1 class="disable_select" style="text-align: center; letter-spacing: 32pt; font-size: 32pt; color: #b50000;">估價單</h1>
-        <hr style="border: 1pt solid #b50000; margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%);">
-        <div style="display: flex; align-items: center;">
-            <div id="customerName" style="min-width: 150pt;font-size: 18pt;letter-spacing: 2pt;height: 32pt;padding: 5pt 16pt 0 16pt;" contenteditable="true" class="editable-input"></div>
-            <span class="disable_select" style="font-size: 18pt; white-space: nowrap; margin-left: 5pt; color: #b50000;">台照</span>
+        <h1>估價單</h1>
+        <hr>
+        <div id="customerName">
+            <div contenteditable="true"></div>
+            <span>台照</span>
         </div>
-        <div style="margin-top: 5pt;">
-            <span style="min-width: 36pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt;margin: 0 5pt 0 0;text-align: center;" contenteditable="true" class="editable-input"></span><span
-             style="font-size: 14pt;color: #b50000;" class="disable_select">年</span><span 
-             style="min-width: 28pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt;margin: 0 5pt 0;text-align: center;" contenteditable="true" class="editable-input"></span><span 
-             style="font-size: 14pt;color: #b50000;" class="disable_select">月</span><span 
-             style="min-width: 28pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt;margin: 0 5pt 0;text-align: center;" contenteditable="true" class="editable-input"></span><span 
-             style="font-size: 14pt;color: #b50000;" class="disable_select">日</span>
+        <div class="date">
+            <span contenteditable="true" id="year"></span>
+            <span>年</span>
+            <span contenteditable="true" id="month"></span>
+            <span>月</span>
+            <span contenteditable="true" id="day"></span>
+            <span>日</span>
         </div>
-        <table style="width: 100%; margin-top: 5pt;">
-            <tbody>
+        <table>
+            <tbody id="estimateBody">
                 <tr>
                     <th colspan="2">品名</th>
                     <th>規格</th>
-                    <th>數量</th>
+                    <th colspan="2">數量(單位)</th>
                     <th>單價</th>
-                    <th>金額</th>
+                    <th style="max-width: 150px;">金額</th>
                     <th>備註</th>
                 </tr>
             </tbody>
             <tfoot>
-                <tr style="height: 36pt;" class="disable_select">
-                    <td></td>
-                    <td colspan="5" style="padding: 0 5pt; color: #b50000; font-weight: bolder;">
-                        <span style="margin-right: 5pt;font-size: 12pt;">總計新臺幣</span>
+                <tr>
+                    <td>備註</td>
+                    <td colspan="7">
+                        <span contenteditable="true" style="width: 100%; min-height: 36pt; padding: 5pt;"></span>
+                    </td>
+                </tr>
+                <tr id="totalRow">
+                    <td>總計</td>
+                    <td colspan="6">
+                        <span>新臺幣</span>
                         <span class="chinese-number" id="ch_7"></span>
-                        <span style="font-size: 14pt;color: #b50000;">仟</span>
+                        <span>仟</span>
                         <span class="chinese-number" id="ch_6"></span>
-                        <span style="font-size: 14pt;color: #b50000;">佰</span>
+                        <span>佰</span>
                         <span class="chinese-number" id="ch_5"></span>
-                        <span style="font-size: 14pt;color: #b50000;">拾</span>
+                        <span>拾</span>
                         <span class="chinese-number" id="ch_4"></span>
-                        <span style="font-size: 14pt;color: #b50000;">萬</span>
+                        <span>萬</span>
                         <span class="chinese-number" id="ch_3"></span>
-                        <span style="font-size: 14pt;color: #b50000;">千</span>
+                        <span>千</span>
                         <span class="chinese-number" id="ch_2"></span>
-                        <span style="font-size: 14pt;color: #b50000;">百</span>
+                        <span>百</span>
                         <span class="chinese-number" id="ch_1"></span>
-                        <span style="font-size: 14pt;color: #b50000;">拾</span>
+                        <span>拾</span>
                         <span class="chinese-number" id="ch_0"></span>
-                        <span style="font-size: 14pt;color: #b50000;">元正</span>
+                        <span>元正</span>
                     </td>
                     <td>
-                        <span style="color: #b50000; font-weight: bolder; font-size: 14pt">NT$</span>
-                        <span style="font-weight: bolder; font-size: 14pt; word-wrap: break-word;" id="total"></span>
+                        <div style="display: flex;">
+                            <span>NT$</span>
+                            <span id="total"></span>
+                        </div>
                     </td>
                 </tr>
             </tfoot>
         </table>
-        <div style="margin-top: 20pt;">
-            <span style="font-size: 14pt;color: #b50000; font-weight: bolder;">經手人: </span>
-            <span id="sign" style="font-size: 18pt;letter-spacing: 1pt;height: 24pt" contenteditable="true" class="editable-input"></span>
+        <div id="validDate">
+            <span style="display: inline-block;">1. 本估價單有效期限:</span>
+            <div class="date">
+                <span contenteditable="true" id="validDays" style="min-width: 16pt;"></span>
+                <span style="font-size: 12pt;">天</span>
+            </div>
+        </div>
+        <div id="tax">
+            <span style="margin-right: 5pt;">2. 本估價單價格:</span>
+            <input id="taxed" type="checkbox">
+            <label for="taxed"><span>含稅</span></label>
+            <input id="untax" type="checkbox" style="margin-left: 20pt;">
+            <label for="untax"><span>不含稅</span></label>
+        </div>
+        
+        <div id="sign">
+            <span>經手人: </span>
+            <span contenteditable="true" id="handler"></span>
+
+            <span style="margin-left: 30pt;">電話: </span>
+            <span contenteditable="true" id="phone"></span>
         </div>
     </div>
 </div>
 
-<button style="width: 210mm; height: 80px; top: 0; left: 50%; transform: translateX(-50%);font-size: 1.5rem; background-color: #b50000; border: 0; border-radius: 10px; color: #fff; font-weight: bolder; cursor: pointer" onclick="downloadPDF()">分享估價單</button>
+<button id="shareBtn" onclick="sharePDF()">分享估價單</button>
 
 <script>
-async function downloadPDF() {
-    const element = document.getElementById('content');
-    // 將頁面捲掉最上方
-    window.scrollTo(0, 0);
-
-    element.style.left = '-2mm'
-    element.style.height = 'calc(297mm - 1mm)'
-
-    const pdfBlob = await html2pdf().from(element).toPdf().output('blob');
-    const file = new File([pdfBlob], '估價單.pdf', { type: 'application/pdf' });
-
-    navigator.share({
-        title: '估價單 PDF',
-        text: '請查看估價單。',
-        files: [file]
-    }).catch(err => console.error('分享失敗:', err));
-
-
-    // 下載完成後恢復原始樣式，讓網頁看起來正常
-    element.style.top = '0';
-    element.style.left = '0'
-    element.style.height = 'auto'; // 恢復原始高度
-}
+let isRemarkVisible = true;
 window.onload = function() {
-    for(let i = 0; i < 20; i++) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="disable_select">${i + 1}</td>
-            <td style="max-width: 180px; width: 180px;"><span contenteditable="true" class="editable-td"></span></td>
-            <td style="max-width: 70px; width: 70px; text-align: center;"><span contenteditable="true" class="editable-td"></span></td>
-            <td style="max-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count"></span></td>
-            <td style="max-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money"></span></td>
-            <td style="max-width: 80px; width: 80px;"><span class="single_total"></span></td>
-            <td style="max-width: 100px; width: 100px;"><span contenteditable="true" class="editable-td"></span></td>
-        `;
-        document.querySelector('table tbody').appendChild(tr);
-    }
+    setTodayDate()
+    const estimates = JSON.parse(localStorage.getItem('estimates')) || [];
+    const rowCount = Math.max(10, estimates.length)
+    for(let i = 0; i < rowCount; i++) { addNewTrToTobdy(i) }
 
-    document.querySelectorAll('.count').forEach(span => {
-        span.addEventListener('input', e => updateSingleTotal(span.parentNode.parentNode) )
-    });
-    document.querySelectorAll('.money').forEach(span => {
+    loadFromLocalStorage();
+    setTimeout(() => { bindEvents(); }, 0);
+};
+
+function removeTrFromTbody() {
+    const tbody = document.querySelector('#estimateBody');
+    if (tbody.children.length > 1) {
+        tbody.removeChild(tbody.lastElementChild);
+    }
+}
+
+function bindEvents() {
+    document.querySelectorAll('.money, .count').forEach(span => {
         span.addEventListener('input', e => {
             let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
             let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
@@ -190,11 +302,92 @@ window.onload = function() {
                 sel.removeAllRanges();
                 sel.addRange(range);
                 updateSingleTotal(span.parentNode.parentNode)
+                setTimeout(()=>{ saveToLocalStorage() }, 0);
             }, 0);
         });
     });
 
-};
+    document.querySelector('#toggleRemark').addEventListener('click', (e) => {
+        const remarkRows = document.querySelectorAll('table tbody tr :is(td, th):last-child');
+        remarkRows.forEach(remarkRow => {
+            if (isRemarkVisible) {
+                remarkRow.style.display = 'none';
+            } else {
+                remarkRow.style.display = '';
+            }
+        });
+        isRemarkVisible = !isRemarkVisible;
+        e.target.style.backgroundColor = isRemarkVisible ? '#00b5b5' : 'gray';
+        document.getElementById('toggleRemark').innerText = isRemarkVisible ? '隱藏備註欄' : '顯示備註欄';
+        document.querySelectorAll('tbody tr :is(td, th):nth-last-child(2)').forEach(t => {
+            t.setAttribute('colspan', isRemarkVisible ? '1' : '2');
+            t.style.minWidth = isRemarkVisible ? '100px' : '150px';
+        })
+        document.querySelectorAll('tbody tr td:nth-child(2)').forEach(t => {
+            t.style.width = isRemarkVisible ? '180px' : '100%';
+        })
+        document.querySelector('#totalRow td:nth-child(2)').setAttribute('colspan', isRemarkVisible ? '6' : '5');
+    });
+
+    document.querySelector('#addNewTr').addEventListener('click', (e) => {
+        const tbody = document.querySelector('#estimateBody');
+        const index = tbody.children.length - 1; // 最後一行的索引
+        addNewTrToTobdy(index);
+        setTimeout(()=>{ saveToLocalStorage() }, 0);
+    });
+
+    document.querySelector('#removeTr').addEventListener('click', (e) => {
+        removeTrFromTbody();
+        setTimeout(()=>{ saveToLocalStorage() }, 0);
+    });
+
+    document.querySelectorAll('[contenteditable="true"]:not(.money, .count)').forEach(elm => {
+        elm.addEventListener('input', (e) => {
+            setTimeout(()=>{ saveToLocalStorage() }, 0);
+        });
+    });
+
+    document.querySelector('#clearAll').addEventListener('click', (e) => {
+        if (confirm('確定要清空所有資料嗎？')) {
+            localStorage.clear();
+            document.querySelectorAll('[contenteditable="true"]').forEach(elm => elm.innerText = '');
+            document.querySelectorAll('.single_total').forEach(elm => elm.innerText = '');
+            document.querySelectorAll('.editable-td').forEach(elm => elm.innerText = '');
+            document.querySelector('#validDays').innerText = '';
+            document.getElementById('handler').innerText = '';
+            document.getElementById('phone').innerText = '';
+            document.getElementById('taxed').checked = false;
+            document.getElementById('untax').checked = false;
+            setTodayDate();
+            updateChineseNumber();
+        }
+    });
+}
+
+function addNewTrToTobdy(index){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td style="min-width: 180px; width: 180px;"><span contenteditable="true" class="editable-td"></span></td>
+        <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td"></span></td>
+        <td style="min-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count"></span></td>
+        <td style="min-width: 30px; width: 30px;"><span contenteditable="true" class="editable-td unit"></span></td>
+        <td style="min-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money"></span></td>
+        <td style="min-width: 120px; width: 120px;"><span class="single_total"></span></td>
+        <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td"></span></td>
+    `;
+    document.querySelector('#estimateBody').appendChild(tr);
+}
+
+function setTodayDate() {
+    const today = new Date();
+    const taiwanYear = today.getFullYear() - 1911; // 民國年 = 西元年 - 1911
+    const month = today.getMonth() + 1; // 月份是 0-11，所以要加 1
+    const day = today.getDate();
+    document.getElementById('year').innerText = taiwanYear;
+    document.getElementById('month').innerText = month.toString().padStart(2, '0'); // 確保兩位數
+    document.getElementById('day').innerText = day.toString().padStart(2, '0'); // 確保兩位數
+}
 
 function updateSingleTotal(tr) {
     const countElm = tr.querySelector('.count');
@@ -231,6 +424,160 @@ function updateChineseNumber() {
     document.getElementById('total').innerText = total.toLocaleString('zh-TW');
 }
 </script>
+<script>
+async function sharePDF() {
+    const element = document.getElementById('content');
+    window.scrollTo(0, 0);
+    element.style.left = '-2mm'
 
+    const rect = element.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height + 1;
+
+    const pdfBlob = await html2pdf()
+        .from(element)
+        .set({
+            filename: '估價單.pdf',
+            margin: 0,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: {
+            scale: 2 // 提高清晰度，值越大越清楚，但檔案越大
+            },
+                jsPDF: {
+                unit: 'px',        // 使用像素做單位（這是關鍵）
+                format: [width, height],    // 自動根據內容決定頁面大小
+                orientation: 'landscape'
+            }
+        }).toPdf().output('blob')
+    const file = new File([pdfBlob], '估價單.pdf', { type: 'application/pdf' });
+
+    navigator.share({
+        title: '估價單 PDF',
+        text: '',
+        files: [file]
+    }).catch(err => console.error('分享失敗:', err));
+
+    // await html2pdf()
+    //     .from(element)
+    //     .set({
+    //         filename: '估價單.pdf',
+    //         margin: 0,
+    //         image: { type: 'jpeg', quality: 1 },
+    //         html2canvas: {
+    //         scale: 2, // 提高清晰度，值越大越清楚，但檔案越大
+    //         useCORS: true
+    //         },
+    //             jsPDF: {
+    //             unit: 'px',        // 使用像素做單位（這是關鍵）
+    //             format: [width, height],    // 自動根據內容決定頁面大小
+    //             orientation: 'landscape'
+    //         }
+    //     })
+    //     .save();
+
+
+    // 完成後恢復原始樣式，讓網頁看起來正常
+    element.style.left = '0'
+}
+</script>
+<script>
+const checkboxes = document.querySelectorAll('#tax input[type="checkbox"]');
+checkboxes.forEach(box => {
+    box.addEventListener('change', () => {
+        checkboxes.forEach(b => b !== box && (b.checked = false));
+        setTimeout(()=>{ saveToLocalStorage() }, 0);
+    });
+});
+</script>
+<script>
+
+function saveToLocalStorage() {
+    const customerName = document.querySelector('#customerName [contenteditable="true"]').innerText;
+    const year = document.getElementById('year').innerText;
+    const month = document.getElementById('month').innerText;
+    const day = document.getElementById('day').innerText;
+    const taxed = document.getElementById('taxed').checked;
+    const untax = document.getElementById('untax').checked;
+    const validDays = document.querySelector('#validDays').innerText;
+    const handler = document.getElementById('handler').innerText;
+    const phone = document.getElementById('phone').innerText;
+    const tbody = document.querySelector('#estimateBody');
+    const rows = Array.from(tbody.querySelectorAll('tr')).slice(1); // 排除表頭和總計行
+    const estimates = rows.map(row => {
+        const cells = row.querySelectorAll('td');
+        return {
+            name: cells[1].innerText,
+            spec: cells[2].innerText,
+            count: cells[3].innerText,
+            unit: cells[4].innerText,
+            price: cells[5].innerText,
+            total: cells[6].innerText,
+            remark: cells[7].innerText
+        };
+    });
+    
+    localStorage.setItem('customerName', customerName);
+    localStorage.setItem('validDays', validDays);
+    localStorage.setItem('handler', handler);
+    localStorage.setItem('phone', phone);
+    localStorage.setItem('taxed', taxed);
+    localStorage.setItem('untax', untax);
+    localStorage.setItem('date', `${year}-${month}-${day}`);
+    localStorage.setItem('estimates', JSON.stringify(estimates));
+
+}
+
+function loadFromLocalStorage() {
+    const customerName = localStorage.getItem('customerName');
+    const validDays = localStorage.getItem('validDays');
+    const handler = localStorage.getItem('handler');
+    const phone = localStorage.getItem('phone');
+    const taxed = localStorage.getItem('taxed') === 'true';
+    const untax = localStorage.getItem('untax') === 'true';
+    const date = localStorage.getItem('date');
+    const estimates = JSON.parse(localStorage.getItem('estimates')) || [];
+    
+    if (customerName) {
+        document.querySelector('#customerName [contenteditable="true"]').innerText = customerName;
+    }
+    
+    if (date) {
+        const [year, month, day] = date.split('-');
+        document.getElementById('year').innerText = year;
+        document.getElementById('month').innerText = month;
+        document.getElementById('day').innerText = day;
+    }
+
+    if (validDays) {
+        document.querySelector('#validDays').innerText = validDays;
+    }
+
+    if (handler) {
+        document.getElementById('handler').innerText = handler;
+    }
+
+    if (phone) {
+        document.getElementById('phone').innerText = phone;
+    }
+
+    document.getElementById('taxed').checked = taxed;
+    document.getElementById('untax').checked = untax;
+    
+    const tbody = document.querySelector('#estimateBody');
+    estimates.forEach((estimate, index) => {
+        const row = tbody.children[index+1];
+        row.querySelector('td:nth-child(2) .editable-td').innerText = estimate.name;
+        row.querySelector('td:nth-child(3) .editable-td').innerText = estimate.spec;
+        row.querySelector('td:nth-child(4) .editable-td').innerText = estimate.count;
+        row.querySelector('td:nth-child(5) .editable-td').innerText = estimate.unit;
+        row.querySelector('td:nth-child(6) .editable-td').innerText = estimate.price;
+        row.querySelector('td:nth-child(7) .single_total').innerText = estimate.total;
+        row.querySelector('td:nth-child(8) .editable-td').innerText = estimate.remark;
+    });
+    
+    updateSingleTotal(tbody.lastElementChild);
+}
+
+</script>
 </body>
 </html>
