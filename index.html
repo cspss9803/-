@@ -40,10 +40,9 @@
         th{ background-color: #b50000; color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
         th:first-child { border-left: 1px solid #b50000; }
         th:last-child { border-right: 1px solid #b50000; }
-        td { height: 18pt; border: 1px solid #b50000; box-sizing: content-box; }
+        td { height: 39px; border: 1px solid #b50000; box-sizing: content-box; }
         td:first-child { width: 14pt; text-align: center; font-size: 10pt; color: #b50000; font-weight: bolder; }
         .count, .money,  .single_total{ text-align: right; }
-        .unit { text-align: center; }
         .single_total { font-weight: bolder; text-align: right; display: block; }
         .editable-td { width: 100%; display: inline-block; white-space: nowrap; height: 24pt; padding: 5pt 8pt 0; }
         tfoot #totalRow { height: 36pt; }
@@ -87,6 +86,20 @@
             height: 12px;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.813 417"><path style="fill:rgb(255,255,255)" d="M159.988 318.582c-3.988 4.012-9.43 6.25-15.082 6.25s-11.094-2.238-15.082-6.25L9.375 198.113c-12.5-12.5-12.5-32.77 0-45.246l15.082-15.086c12.504-12.5 32.75-12.5 45.25 0l75.2 75.203L348.104 9.781c12.504-12.5 32.77-12.5 45.25 0l15.082 15.086c12.5 12.5 12.5 32.766 0 45.246zm0 0"></path></svg>') no-repeat center center;
         }
+        .unit {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: transparent;
+            text-align: center;
+            font-weight: bolder;
+            color: #000;
+            font-size: 10pt;
+            padding: 0 8px;
+        }
+
         #tax span:not([contenteditable="true"]) { font-size: 12pt; color: #b50000; top: -3pt; }
 
         #sign span:not([contenteditable="true"]) {font-size: 12pt;color: #b50000; }
@@ -94,80 +107,75 @@
         
         #shareBtn { width: 210mm; height: 80px; top: 0; left: calc(50% + 270px + 32px);; transform: translateX(-50%);font-size: 1.5rem; background-color: #b50000; border: 0; border-radius: 10px; color: #fff; font-weight: bolder; cursor: pointer; display: block; }
         #toggleRemark {
-            position: absolute;
             top: 175px;
-            z-index: 1;
             right: -32px;
             transform: translateX(100%);
-            width: 120px;
-            height: 48px;
-            border: 0;
             background-color: #00b5b5;
-            border-radius: 5px;
-            cursor: pointer;
-            color: #fff;
-        }
-        #toggleRemark::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: -24px;
-            width: 16px;
-            height: 16px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path style="fill:rgb(0, 0, 0);" d="M8.2,275.9l184.9,184.9c5.3,5.3,12.3,8.2,19.8,8.2c7.5,0,14.5-2.9,19.8-8.2l16.8-16.8c5.3-5.3,8.2-12.3,8.2-19.8c0-7.5-2.9-14.8-8.2-20L141.6,296h342.7c15.5,0,27.7-12.1,27.7-27.6v-23.7c0-15.5-12.2-28.8-27.7-28.8H140.4l109.1-108.7c5.3-5.3,8.2-12.1,8.2-19.6c0-7.5-2.9-14.4-8.2-19.7l-16.8-16.7c-5.3-5.3-12.3-8.2-19.8-8.2c-7.5,0-14.5,2.9-19.8,8.2L8.2,236.1C2.9,241.4,0,248.5,0,256C0,263.5,2.9,270.6,8.2,275.9L8.2,275.9z"/></svg>');
         }
         #addNewTr {
-            position: absolute;
             bottom: 200px;
-            z-index: 1;
             left: -32px;
             transform: translateX(-100%);
-            width: 120px;
-            height: 48px;
-            border: 0;
             background-color: #004eb5;
-            border-radius: 5px;
-            cursor: pointer;
-            color: #fff;
         }
         #removeTr {
-            position: absolute;
             bottom: 260px;
-            z-index: 1;
             left: -32px;
             transform: translateX(-100%);
+            background-color: #b50000;
+        }
+        #clearAll { top: 87px; left: -32px; transform: translateX(-100%); background-color: #ae00ff; }
+        #toggleAutoCounting {
+            top: 0;
+            right: -32px;
+            transform: translateX(100%);
+            background-color: #5100b5;
+        }
+        #toggleTotalMerge {
+            top: 90px;
+            right: -32px;
+            transform: translateX(100%);
+            background-color: #cf6e00;
+        }
+        .btn {
+            position: absolute;
+            z-index: 1;
             width: 120px;
             height: 48px;
             border: 0;
-            background-color: #b50000;
             border-radius: 5px;
             cursor: pointer;
             color: #fff;
         }
-        #clearAll {
-            position: absolute;
-            top: 175px;
-            z-index: 1;
-            left: -32px;
-            transform: translateX(-100%);
-            width: 120px;
-            height: 48px;
-            border: 0;
-            background-color: #ae00ff;
-            border-radius: 5px;
-            cursor: pointer;
-            color: #fff;
+
+        table.mergeTotal tbody tr:not(:nth-child(1), :nth-child(2)) td:has(.single_total){
+            display: none !important;
+        }
+        table.mergeTotal tbody tr:nth-child(2) td .single_total{
+            display: none;
+        }
+
+        table.mergeTotal tbody tr:nth-child(2) td:has(.single_total) div{
+            width: 100%;
+            height: 100%;
+            font-size: 14pt;
+            font-weight: bolder;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 5pt;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div id="container">
-    <button id="clearAll">全部清空</button>
-    <button id="toggleRemark">隱藏備註欄</button>
-    <button id="addNewTr">新增一行</button>
-    <button id="removeTr">刪除一行</button>
+    <button class="btn" id="clearAll">全部清空</button>
+    <button class="btn" id="toggleRemark">隱藏備註欄</button>
+    <button class="btn" id="toggleTotalMerge">合併金額</button>
+    <button class="btn" id="toggleAutoCounting">全部自動計算中...</button>
+    <button class="btn" id="addNewTr">新增一行</button>
+    <button class="btn" id="removeTr">刪除一行</button>
     <div style="
         width: 50px; 
         height: 50px;
@@ -198,8 +206,8 @@
                     <th colspan="2">品名</th>
                     <th>規格</th>
                     <th colspan="2">數量(單位)</th>
-                    <th>單價</th>
-                    <th style="max-width: 150px;">金額</th>
+                    <th id="price_th">單價</th>
+                    <th id="single_total_th" style="max-width: 150px;">金額</th>
                     <th>備註</th>
                 </tr>
             </tbody>
@@ -243,7 +251,7 @@
         <div id="validDate">
             <span style="display: inline-block;">1. 本估價單有效期限:</span>
             <div class="date">
-                <span contenteditable="true" id="validDays" style="min-width: 16pt;"></span>
+                <span contenteditable="true" id="validDays" style="min-width: 16pt; line-height: 16pt;"></span>
                 <span style="font-size: 12pt;">天</span>
             </div>
         </div>
@@ -254,7 +262,6 @@
             <input id="untax" type="checkbox" style="margin-left: 20pt;">
             <label for="untax"><span>不含稅</span></label>
         </div>
-        
         <div id="sign">
             <span>經手人: </span>
             <span contenteditable="true" id="handler"></span>
@@ -269,6 +276,9 @@
 
 <script>
 let isRemarkVisible = true;
+let isAutoCounting = true;
+let isTotalMerged = false;
+
 window.onload = function() {
     setTodayDate()
     const estimates = JSON.parse(localStorage.getItem('estimates')) || [];
@@ -287,25 +297,8 @@ function removeTrFromTbody() {
 }
 
 function bindEvents() {
-    document.querySelectorAll('.money, .count').forEach(span => {
-        span.addEventListener('input', e => {
-            let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
-            let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
-            if(formattedValue === '非數值') { formattedValue = ''; }
-            
-            setTimeout(() => {
-                span.innerText = formattedValue;
-                let range = document.createRange();
-                let sel = window.getSelection();
-                range.selectNodeContents(span);
-                range.collapse(false);
-                sel.removeAllRanges();
-                sel.addRange(range);
-                updateSingleTotal(span.parentNode.parentNode)
-                setTimeout(()=>{ saveToLocalStorage() }, 0);
-            }, 0);
-        });
-    });
+
+    bindAutoCounting();
 
     document.querySelector('#toggleRemark').addEventListener('click', (e) => {
         const remarkRows = document.querySelectorAll('table tbody tr :is(td, th):last-child');
@@ -326,7 +319,7 @@ function bindEvents() {
         document.querySelectorAll('tbody tr td:nth-child(2)').forEach(t => {
             t.style.width = isRemarkVisible ? '180px' : '100%';
         })
-        document.querySelector('#totalRow td:nth-child(2)').setAttribute('colspan', isRemarkVisible ? '6' : '5');
+        document.querySelector('#totalRow td:nth-child(2)').setAttribute('colspan', isRemarkVisible && !isTotalMerged ? 6 : 5);
     });
 
     document.querySelector('#addNewTr').addEventListener('click', (e) => {
@@ -353,6 +346,7 @@ function bindEvents() {
             document.querySelectorAll('[contenteditable="true"]').forEach(elm => elm.innerText = '');
             document.querySelectorAll('.single_total').forEach(elm => elm.innerText = '');
             document.querySelectorAll('.editable-td').forEach(elm => elm.innerText = '');
+            document.querySelectorAll('select').forEach(elm => elm.selectedIndex = 0);
             document.querySelector('#validDays').innerText = '';
             document.getElementById('handler').innerText = '';
             document.getElementById('phone').innerText = '';
@@ -362,6 +356,139 @@ function bindEvents() {
             updateChineseNumber();
         }
     });
+
+    document.querySelector('#toggleAutoCounting').addEventListener('click', (e) => {
+        isAutoCounting = !isAutoCounting;
+        e.target.style.backgroundColor = isAutoCounting ? '#5100b5' : 'gray';
+        e.target.innerText = isAutoCounting ? '全部自動計算中...' : '計算總金額中...';
+        if(isAutoCounting) {
+            bindAutoCounting();
+        } else {
+            document.querySelectorAll('.money, .count').forEach(span => {
+                span.removeEventListener('input', inputCountOrMoney);
+            });
+            document.querySelectorAll('.single_total').forEach(span => {
+                span.setAttribute('contenteditable', true);
+            });
+        }
+    });
+
+    document.querySelectorAll('.single_total').forEach(span => {
+        span.addEventListener('input', (e) => {
+            let singleTotalValue = (parseInt(span.innerText.replace(/[^0-9]+/g, '')) || 0).toLocaleString('zh-TW')
+            if(singleTotalValue === '非數值' || singleTotalValue === '0') { singleTotalValue = ''; }
+            span.innerText = singleTotalValue
+            let range = document.createRange();
+            let sel = window.getSelection();
+            range.selectNodeContents(span);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            updateChineseNumber();
+            setTimeout(()=>{ saveToLocalStorage() }, 0);
+        });
+    });
+
+    document.querySelectorAll('.unit').forEach(input => {
+        input.addEventListener('change', (e) => {
+            setTimeout(()=>{ saveToLocalStorage() }, 0);
+        });
+    })
+
+    document.querySelector('#toggleTotalMerge').addEventListener('click', toggleTotalMerge);
+}
+
+function toggleTotalMerge(e, totalvalue=0){
+    isTotalMerged = !isTotalMerged;
+    e.target.style.backgroundColor = isTotalMerged ? 'gray' : '#b500af';
+    e.target.innerText = isTotalMerged ? '分開金額欄位' : '合併金額欄位';
+
+    const toggleAutoCounting = document.querySelector('#toggleAutoCounting');
+    const table = document.querySelector('table');
+    if( isTotalMerged ){
+        isAutoCounting = false;
+        toggleAutoCounting.style.backgroundColor = 'gray';
+        toggleAutoCounting.innerText = '計算總金額中...';
+        toggleAutoCounting.setAttribute('disabled', true);
+        toggleAutoCounting.style.cursor = 'not-allowed';
+        toggleAutoCounting.style.opacity = '0.1';
+        table.classList.add('mergeTotal');
+
+        document.querySelectorAll('#price_th, td:has(.money)').forEach(t => {
+            t.style.display = 'none';
+        })
+        const singleTotalCount = document.querySelectorAll('.single_total').length;
+        const mainTd = document.querySelector('tbody tr:nth-child(2) td:has(.single_total)')
+        mainTd.setAttribute('rowspan', singleTotalCount);
+        const div = document.createElement('div')
+        div.classList.add('single_total');
+        div.classList.add('mergedTotal');
+        div.innerText = "0"
+        mainTd.appendChild(div);
+        div.setAttribute('contenteditable', true)
+        div.addEventListener('input', (e) => {
+            let mainTotalValue = (parseInt(div.innerText.replace(/[^0-9]+/g, '')) || 0).toLocaleString('zh-TW')
+            if(mainTotalValue === '非數值' || mainTotalValue === '0') { mainTotalValue = ''; }
+            div.innerText = mainTotalValue
+            let range = document.createRange();
+            let sel = window.getSelection();
+            range.selectNodeContents(div);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            updateChineseNumber();
+            setTimeout(()=>{ saveToLocalStorage() }, 0);
+        });
+        document.querySelector('#single_total_th').setAttribute('colspan', 2);
+        mainTd.setAttribute('colspan', 2);
+        setTimeout(()=>{ 
+            updateChineseNumber();
+            saveToLocalStorage() 
+        }, 0)
+    } else {
+        toggleAutoCounting.removeAttribute('disabled');
+        toggleAutoCounting.style.cursor = 'pointer';
+        toggleAutoCounting.style.opacity = '1';
+        table.classList.remove('mergeTotal');
+        const mainTd = document.querySelector('tbody tr:nth-child(2) td:has(.single_total)')
+        mainTd.setAttribute('rowspan', 1);
+        mainTd.querySelector('div').remove();
+        document.querySelectorAll('#price_th, td:has(.money)').forEach(t => {
+            t.style.display = '';
+        })
+        document.querySelector('#single_total_th').setAttribute('colspan', 1);
+        mainTd.setAttribute('colspan', 1);
+        updateChineseNumber();
+        setTimeout(()=>{ saveToLocalStorage() }, 0)
+    }
+
+}
+
+function bindAutoCounting() {
+    document.querySelectorAll('.money, .count').forEach(span => {
+        span.addEventListener('input', inputCountOrMoney);
+    });
+    document.querySelectorAll('span.single_total').forEach(span => {
+        span.removeAttribute('contenteditable');
+    });
+}
+
+function inputCountOrMoney(e) {
+    const span = e.target;
+    let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
+    let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
+    if(formattedValue === '非數值') { formattedValue = ''; }
+    setTimeout(() => {
+        span.innerText = formattedValue;
+        let range = document.createRange();
+        let sel = window.getSelection();
+        range.selectNodeContents(span);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        updateSingleTotal(span.parentNode.parentNode)
+        setTimeout(()=>{ saveToLocalStorage() }, 0);
+    }, 0);
 }
 
 function addNewTrToTobdy(index){
@@ -371,9 +498,23 @@ function addNewTrToTobdy(index){
         <td style="min-width: 180px; width: 180px;"><span contenteditable="true" class="editable-td"></span></td>
         <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td"></span></td>
         <td style="min-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count"></span></td>
-        <td style="min-width: 30px; width: 30px;"><span contenteditable="true" class="editable-td unit"></span></td>
+        <td style="min-width: 30px; width: 30px;">
+            <select class="unit">
+                <option></option>
+                <option>式</option>
+                <option>個</option>
+                <option>支</option>
+                <option>座</option>
+                <option>組</option>
+                <option>片</option>
+                <option>台</option>
+                <option>件</option>    
+            </select>
+        </td>
         <td style="min-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money"></span></td>
-        <td style="min-width: 120px; width: 120px;"><span class="single_total"></span></td>
+        <td style="min-width: 120px; width: 120px;">
+            <span contenteditable="true" class="single_total editable-td"></span>
+        </td>
         <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td"></span></td>
     `;
     document.querySelector('#estimateBody').appendChild(tr);
@@ -402,17 +543,17 @@ function updateSingleTotal(tr) {
     if(singleTotal === '非數值') { singleTotal = ''; }
     if(singleTotal === '0') { singleTotal = ''; }
     singleTotalElm.innerText = singleTotal;
-    updateChineseNumber();
+    if(!localStorage.getItem('isTotalMerged') === 'true'){
+        updateChineseNumber();
+    }
 }
 
 function updateChineseNumber() {
     document.querySelectorAll('.chinese-number').forEach(elm => elm.innerText = ''); // 清空所有中文數字顯示
     document.getElementById('total').innerText = ''; // 清空總計顯示
-    const total = Array.from(document.querySelectorAll('.single_total'))
+    const total = Array.from(document.querySelectorAll(isTotalMerged? 'div.single_total' : '.single_total'))
         .reduce((sum, span) => sum + (parseInt(span.innerText.replace(/[^0-9]+/g, '')) || 0), 0);
-
     const chineseNumbers = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
-    
     const totalArray = `${total}`.split('').map(Number).reverse()
     if(totalArray.length === 1 && totalArray[0] === 0) return
     totalArray.forEach((num, index) => {
@@ -423,6 +564,7 @@ function updateChineseNumber() {
     });
     document.getElementById('total').innerText = total.toLocaleString('zh-TW');
 }
+
 </script>
 <script>
 async function sharePDF() {
@@ -432,7 +574,7 @@ async function sharePDF() {
 
     const rect = element.getBoundingClientRect();
     const width = rect.width;
-    const height = rect.height + 1;
+    const height = rect.height;
 
     const pdfBlob = await html2pdf()
         .from(element)
@@ -446,14 +588,14 @@ async function sharePDF() {
                 jsPDF: {
                 unit: 'px',        // 使用像素做單位（這是關鍵）
                 format: [width, height],    // 自動根據內容決定頁面大小
-                orientation: 'landscape'
+                orientation: 'portrait' // portrait、landscape
             }
         }).toPdf().output('blob')
     const file = new File([pdfBlob], '估價單.pdf', { type: 'application/pdf' });
 
     navigator.share({
         title: '估價單 PDF',
-        text: '',
+        text: '請查看這份估價單',
         files: [file]
     }).catch(err => console.error('分享失敗:', err));
 
@@ -465,12 +607,11 @@ async function sharePDF() {
     //         image: { type: 'jpeg', quality: 1 },
     //         html2canvas: {
     //         scale: 2, // 提高清晰度，值越大越清楚，但檔案越大
-    //         useCORS: true
     //         },
     //             jsPDF: {
     //             unit: 'px',        // 使用像素做單位（這是關鍵）
     //             format: [width, height],    // 自動根據內容決定頁面大小
-    //             orientation: 'landscape'
+    //             orientation: 'portrait'
     //         }
     //     })
     //     .save();
@@ -509,13 +650,18 @@ function saveToLocalStorage() {
             name: cells[1].innerText,
             spec: cells[2].innerText,
             count: cells[3].innerText,
-            unit: cells[4].innerText,
+            unit: cells[4].querySelector('select').selectedIndex,
             price: cells[5].innerText,
-            total: cells[6].innerText,
+            total: cells[6].querySelector('span').innerText,
             remark: cells[7].innerText
         };
     });
     
+    localStorage.setItem('isTotalMerged', isTotalMerged);
+    if(isTotalMerged) {
+        const mergeTotalValue = document.querySelector('tbody tr:nth-child(2) td:has(.single_total) div').innerText
+        localStorage.setItem('mergeTotalValue', mergeTotalValue);
+    }
     localStorage.setItem('customerName', customerName);
     localStorage.setItem('validDays', validDays);
     localStorage.setItem('handler', handler);
@@ -528,6 +674,7 @@ function saveToLocalStorage() {
 }
 
 function loadFromLocalStorage() {
+    const isTotalMerged_ = localStorage.getItem('isTotalMerged') === 'true';
     const customerName = localStorage.getItem('customerName');
     const validDays = localStorage.getItem('validDays');
     const handler = localStorage.getItem('handler');
@@ -569,13 +716,18 @@ function loadFromLocalStorage() {
         row.querySelector('td:nth-child(2) .editable-td').innerText = estimate.name;
         row.querySelector('td:nth-child(3) .editable-td').innerText = estimate.spec;
         row.querySelector('td:nth-child(4) .editable-td').innerText = estimate.count;
-        row.querySelector('td:nth-child(5) .editable-td').innerText = estimate.unit;
+        row.querySelector('td:nth-child(5) select').selectedIndex = estimate.unit || 0;
         row.querySelector('td:nth-child(6) .editable-td').innerText = estimate.price;
         row.querySelector('td:nth-child(7) .single_total').innerText = estimate.total;
         row.querySelector('td:nth-child(8) .editable-td').innerText = estimate.remark;
     });
-    
     updateSingleTotal(tbody.lastElementChild);
+
+    if(isTotalMerged_) {
+        const mergeTotalValue = localStorage.getItem('mergeTotalValue') || '0';
+        toggleTotalMerge({ target: document.querySelector('#toggleTotalMerge') }, mergeTotalValue);
+        document.querySelector('tbody tr:nth-child(2) td:has(.single_total) div').innerText = mergeTotalValue;
+    }
 }
 
 </script>
