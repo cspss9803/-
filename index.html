@@ -223,7 +223,7 @@
                 <tr>
                     <td>備註</td>
                     <td colspan="7">
-                        <span contenteditable="true" style="width: 100%; min-height: 36pt; padding: 5pt;"></span>
+                        <span contenteditable="true" id="overallRemark" style="width: 100%; min-height: 36pt; padding: 5pt;"></span>
                     </td>
                 </tr>
                 <tr id="totalRow">
@@ -591,10 +591,10 @@ async function sharePDF() {
     const width = rect.width;
     const height = rect.height + 1;
 
+    const fileName = `估價單-${document.querySelector('#customerName [contenteditable="true"]').innerText}.pdf`;
     const pdfBlob = await html2pdf()
         .from(element)
         .set({
-            filename: '估價單.pdf',
             margin: 0,
             image: { type: 'jpeg', quality: 1 },
             html2canvas: {
@@ -606,10 +606,10 @@ async function sharePDF() {
                 orientation: 'portrait' // portrait、landscape
             }
         }).toPdf().output('blob')
-    const file = new File([pdfBlob], '估價單.pdf', { type: 'application/pdf' });
+    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
     navigator.share({
-        title: '估價單',
+        title: fileName,
         text: '請查看這份估價單',
         files: [file]
     }).catch(err => console.error('分享失敗:', err));
@@ -657,6 +657,7 @@ function saveToLocalStorage() {
     const validDays = document.querySelector('#validDays').innerText;
     const handler = document.getElementById('handler').innerText;
     const phone = document.getElementById('phone').innerText;
+    const overallRemark = document.getElementById('overallRemark').innerText
     const tbody = document.querySelector('#estimateBody');
     const rows = Array.from(tbody.querySelectorAll('tr')).slice(1); // 排除表頭和總計行
     const estimates = rows.map(row => {
@@ -677,7 +678,9 @@ function saveToLocalStorage() {
         const mergeTotalValue = document.querySelector('tbody tr:nth-child(2) td:has(.single_total) div').innerText
         localStorage.setItem('mergeTotalValue', mergeTotalValue);
     }
+    
     localStorage.setItem('customerName', customerName);
+    localStorage.setItem('overallRemark', overallRemark);
     localStorage.setItem('validDays', validDays);
     localStorage.setItem('handler', handler);
     localStorage.setItem('phone', phone);
@@ -697,10 +700,15 @@ function loadFromLocalStorage() {
     const taxed = localStorage.getItem('taxed') === 'true';
     const untax = localStorage.getItem('untax') === 'true';
     const date = localStorage.getItem('date');
+    const overallRemark = localStorage.getItem('overallRemark')
     const estimates = JSON.parse(localStorage.getItem('estimates')) || [];
     
     if (customerName) {
         document.querySelector('#customerName [contenteditable="true"]').innerText = customerName;
+    }
+
+    if(overallRemark) {
+        document.querySelector('#overallRemark').textContent = overallRemark;
     }
     
     if (date) {
