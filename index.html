@@ -2,7 +2,8 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>估價單F</title>
+    <title>估價單</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 508.928 508.928'%3E%3Cpath style='fill:rgb(255,59,59)' d='M403.712 201.04H256.288L329.792 0 105.216 307.888H252.64l-73.504 201.04z'/%3E%3C/svg%3E">
     <style>
         * { box-sizing: border-box; margin: 0; position: relative; }
         body { background-color: #ccc; overscroll-behavior-y: contain; padding: 50px 0 200px; }
@@ -395,7 +396,10 @@ function bindEvents() {
         });
     })
 
-    document.querySelector('#toggleTotalMerge').addEventListener('click', toggleTotalMerge);
+    document.querySelector('#toggleTotalMerge').addEventListener('click', e => {
+        const mergeTotalValue = localStorage.getItem('mergeTotalValue') || '0';
+        toggleTotalMerge(e, mergeTotalValue)
+    });
 }
 
 function toggleTotalMerge(e, totalvalue=0){
@@ -413,7 +417,6 @@ function toggleTotalMerge(e, totalvalue=0){
         toggleAutoCounting.style.cursor = 'not-allowed';
         toggleAutoCounting.style.opacity = '0.1';
         table.classList.add('mergeTotal');
-
         document.querySelectorAll('#price_th, td:has(.money)').forEach(t => {
             t.style.display = 'none';
         })
@@ -423,13 +426,13 @@ function toggleTotalMerge(e, totalvalue=0){
         const div = document.createElement('div')
         div.classList.add('single_total');
         div.classList.add('mergedTotal');
-        div.innerText = "0"
+        div.textContent = totalvalue
         mainTd.appendChild(div);
         div.setAttribute('contenteditable', true)
         div.addEventListener('input', (e) => {
             let mainTotalValue = (parseInt(div.innerText.replace(/[^0-9]+/g, '')) || 0).toLocaleString('zh-TW')
             if(mainTotalValue === '非數值' || mainTotalValue === '0') { mainTotalValue = ''; }
-            div.innerText = mainTotalValue
+            div.textContent = mainTotalValue
             let range = document.createRange();
             let sel = window.getSelection();
             range.selectNodeContents(div);
@@ -574,7 +577,7 @@ async function sharePDF() {
 
     const rect = element.getBoundingClientRect();
     const width = rect.width;
-    const height = rect.height;
+    const height = rect.height + 1;
 
     const pdfBlob = await html2pdf()
         .from(element)
@@ -594,7 +597,7 @@ async function sharePDF() {
     const file = new File([pdfBlob], '估價單.pdf', { type: 'application/pdf' });
 
     navigator.share({
-        title: '估價單 PDF',
+        title: '估價單',
         text: '請查看這份估價單',
         files: [file]
     }).catch(err => console.error('分享失敗:', err));
