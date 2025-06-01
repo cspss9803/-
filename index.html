@@ -458,6 +458,7 @@ function toggleTotalMerge(e, totalvalue=0){
         toggleAutoCounting.removeAttribute('disabled');
         toggleAutoCounting.style.cursor = 'pointer';
         toggleAutoCounting.style.opacity = '1';
+        toggleAutoCounting.click();
         table.classList.remove('mergeTotal');
         const mainTd = document.querySelector('tbody tr:nth-child(2) td:has(.single_total)')
         mainTd.setAttribute('rowspan', 1);
