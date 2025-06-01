@@ -149,6 +149,10 @@
             color: #fff;
         }
 
+        table.hideRemark tbody tr :is(td, th):last-child {
+            display: none;
+        }
+
         table.mergeTotal tbody tr:not(:nth-child(1), :nth-child(2)) td:has(.single_total){
             display: none !important;
         }
@@ -165,6 +169,9 @@
             align-items: center;
             justify-content: flex-end;
             padding: 0 5pt;
+        }
+        table.mergeTotal :is(#price_th, td:has(.money)) {
+            display: none;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -302,15 +309,14 @@ function bindEvents() {
     bindAutoCounting();
 
     document.querySelector('#toggleRemark').addEventListener('click', (e) => {
-        const remarkRows = document.querySelectorAll('table tbody tr :is(td, th):last-child');
-        remarkRows.forEach(remarkRow => {
-            if (isRemarkVisible) {
-                remarkRow.style.display = 'none';
-            } else {
-                remarkRow.style.display = '';
-            }
-        });
         isRemarkVisible = !isRemarkVisible;
+        const table = document.querySelector('table');
+        if (isRemarkVisible) {
+            table.classList.remove('hideRemark');
+        } else {
+            table.classList.add('hideRemark');
+        }
+        
         e.target.style.backgroundColor = isRemarkVisible ? '#00b5b5' : 'gray';
         document.getElementById('toggleRemark').innerText = isRemarkVisible ? '隱藏備註欄' : '顯示備註欄';
         document.querySelectorAll('tbody tr :is(td, th):nth-last-child(2)').forEach(t => {
@@ -326,6 +332,9 @@ function bindEvents() {
     document.querySelector('#addNewTr').addEventListener('click', (e) => {
         const tbody = document.querySelector('#estimateBody');
         const index = tbody.children.length - 1; // 最後一行的索引
+        if(isTotalMerged) {
+            document.querySelector('tbody tr:nth-child(2) td:has(.single_total)').setAttribute('rowspan', index + 1);
+        }
         addNewTrToTobdy(index);
         setTimeout(()=>{ saveToLocalStorage() }, 0);
     });
@@ -417,9 +426,6 @@ function toggleTotalMerge(e, totalvalue=0){
         toggleAutoCounting.style.cursor = 'not-allowed';
         toggleAutoCounting.style.opacity = '0.1';
         table.classList.add('mergeTotal');
-        document.querySelectorAll('#price_th, td:has(.money)').forEach(t => {
-            t.style.display = 'none';
-        })
         const singleTotalCount = document.querySelectorAll('.single_total').length;
         const mainTd = document.querySelector('tbody tr:nth-child(2) td:has(.single_total)')
         mainTd.setAttribute('rowspan', singleTotalCount);
@@ -446,7 +452,7 @@ function toggleTotalMerge(e, totalvalue=0){
         mainTd.setAttribute('colspan', 2);
         setTimeout(()=>{ 
             updateChineseNumber();
-            saveToLocalStorage() 
+            saveToLocalStorage();
         }, 0)
     } else {
         toggleAutoCounting.removeAttribute('disabled');
