@@ -173,11 +173,19 @@
         table.mergeTotal :is(#price_th, td:has(.money)) {
             display: none;
         }
+        #version {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            color: #777;
+            font-size: 1rem;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div id="container">
+    <div id="version">1.0.0</div>
     <button class="btn" id="clearAll">全部清空</button>
     <button class="btn" id="toggleRemark">隱藏備註欄</button>
     <button class="btn" id="toggleTotalMerge">合併金額</button>
