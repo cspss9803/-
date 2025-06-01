@@ -413,7 +413,7 @@ function bindEvents() {
 
 function toggleTotalMerge(e, totalvalue=0){
     isTotalMerged = !isTotalMerged;
-    e.target.style.backgroundColor = isTotalMerged ? 'gray' : '#b500af';
+    e.target.style.backgroundColor = isTotalMerged ? 'gray' : '#cf6e00';
     e.target.innerText = isTotalMerged ? '分開金額欄位' : '合併金額欄位';
 
     const toggleAutoCounting = document.querySelector('#toggleAutoCounting');
@@ -469,6 +469,7 @@ function toggleTotalMerge(e, totalvalue=0){
         mainTd.setAttribute('colspan', 1);
         updateChineseNumber();
         setTimeout(()=>{ saveToLocalStorage() }, 0)
+        document.querySelector('#totalRow td:nth-child(2)').setAttribute('colspan', isRemarkVisible && !isTotalMerged ? 6 : 5);
     }
 
 }
