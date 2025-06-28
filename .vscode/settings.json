@@ -1,0 +1,10 @@
+{
+    "liveServer.settings.host": "192.168.1.104",
+    "liveServer.settings.port": 5500,
+    "liveServer.settings.https": {
+        "enable": true,
+        "cert": "D:\\user\\Documents\\GitHub\\-\\server.cert",
+        "key": "D:\\user\\Documents\\GitHub\\-\\server.key",
+        "passphrase": ""
+    }
+}
