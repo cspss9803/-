@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>估價單</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 508.928 508.928'%3E%3Cpath style='fill:rgb(255,59,59)' d='M403.712 201.04H256.288L329.792 0 105.216 307.888H252.64l-73.504 201.04z'/%3E%3C/svg%3E">
     <style>
         * { box-sizing: border-box; margin: 0; position: relative; }
         body { background-color: #ccc; overscroll-behavior-y: contain; padding: 50px 0 200px; }
         h1 { text-align: center; letter-spacing: 32pt; font-size: 32pt; color: #b50000; }
         hr { border: 1pt solid #b50000; margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%); }
+
+        /*--------------------------------------------------------------*/
         #container {
             min-width: 210mm;
             width: min-content;
             height: min-content;
             margin: 0 0 50px;
-            left: calc(50% + 270px + 32px);
-            transform: translateX(calc(-50%));
+            left: 180px;
             background-color: white;
             user-select: none;
         }
@@ -26,35 +28,49 @@
             font-family: Arial, sans-serif;
         }
         [contenteditable="true"] { display: inline-block; word-wrap: break-word; white-space: pre-wrap; font-weight: bolder; }
+
+        /* 台照 */
         #customerName { display: flex; align-items: center; }
         #customerName [contenteditable="true"] { min-width: 150pt;font-size: 18pt;letter-spacing: 2pt;height: 32pt;padding: 5pt 16pt 0 16pt; }
         #customerName [contenteditable="true"]::before { content: ""; position: absolute; bottom: 0; width: calc(100% + 48pt); left: 0; height: 2pt; background-color: #b50000; }
         #customerName span:nth-child(even) { font-size: 18pt; white-space: nowrap; margin-left: 5pt; color: #b50000; }
 
+        /* 年月日 */
         .date { margin-top: 5pt; }
         .date span:nth-child(even) { font-size: 14pt;color: #b50000; }
         .date [contenteditable="true"] { font-size: 14pt;letter-spacing: 1pt;height: 18pt; text-align: center;margin: 0 5pt 0;min-width: 28pt; }
         .date [contenteditable="true"]:nth-child(1) { min-width: 36pt;margin-right: 0; }
 
+         /* 表格設定 */
         table, th, td { border-collapse: collapse; }
-        table { border: 1px solid #b50000; width: 100%; margin-top: 5pt; }
+        table { width: 100%; margin-top: 5pt; }
+
+        /* th 的左右邊框設為白色 */
         th{ background-color: #b50000; color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
-        th:first-child { border-left: 1px solid #b50000; }
-        th:last-child { border-right: 1px solid #b50000; }
+        th:first-child { border-left: 1px solid #b50000; } /* 第一個 th 左邊框設為紅色*/
+        th:last-child { border-right: 1px solid #b50000; } /* 最後的 th 右邊框設為紅色*/
+        
+        /* td 的設定 */
         td { height: 39px; border: 1px solid #b50000; box-sizing: content-box; }
+
+        /* 第一個 td 是編號欄位 */
         td:first-child { width: 14pt; text-align: center; font-size: 10pt; color: #b50000; font-weight: bolder; }
+
+        /* 數值型的欄位字要置右 */
         .count, .money,  .single_total{ text-align: right; }
         .single_total { font-weight: bolder; text-align: right; display: block; }
+
+        /* td 中可以填寫文字的元素 */
         .editable-td { width: 100%; display: inline-block; white-space: nowrap; height: 24pt; padding: 5pt 8pt 0; }
         tfoot #totalRow { height: 36pt; }
         tfoot #totalRow td:nth-child(2) { padding: 0 5pt; color: #b50000; font-weight: bolder; }
         tfoot #totalRow td:nth-child(2) span:nth-child(1) { margin-right: 5pt;font-size: 12pt; }
         tfoot #totalRow td:nth-child(2) span:not([id], :nth-child(1)) { font-size: 14pt;color: #b50000; }
         tfoot #totalRow td:nth-child(3) span:not(#total) { color: #b50000; font-weight: bolder; font-size: 14pt }
-        #total { font-weight: bolder; font-size: 14pt; word-wrap: nowrap; }
 
+        /*--------------------------------------------------------------*/
+        #total { font-weight: bolder; font-size: 14pt; word-wrap: nowrap; }
         .chinese-number { display: inline-block; min-width: 18pt;font-size: 14pt;letter-spacing: 1pt;height: 18pt; text-align: center;color: black; }
-        
         #validDate { margin-top: 10pt; display: flex; }
         #validDate .date { margin-top: 0; }
         #validDate span:nth-child(1) { font-size: 12pt; color: #b50000; }
@@ -73,10 +89,7 @@
             background-color: white;
             color: #fff;
         }
-        input[type="checkbox"]:checked {
-            background-color: #b50000; /* 改變背景顏色 */
-            border: 1px solid #b50000;
-        }
+        input[type="checkbox"]:checked { background-color: #b50000; border: 1px solid #b50000; }
         input[type="checkbox"]:checked::before {
             content: "";
             position: absolute;
@@ -100,13 +113,25 @@
             font-size: 10pt;
             padding: 0 8px;
         }
-
         #tax span:not([contenteditable="true"]) { font-size: 12pt; color: #b50000; top: -3pt; }
-
         #sign span:not([contenteditable="true"]) {font-size: 12pt;color: #b50000; }
         #sign span:is([contenteditable="true"]) { min-width: 100pt; margin: 0 5pt 0 0; padding: 0 20pt 10pt 10pt; border-bottom: 1px solid #b50000; font-size: 18pt; height: 24pt; }
         
-        #shareBtn { width: 210mm; height: 80px; top: 0; left: calc(50% + 270px + 32px);; transform: translateX(-50%);font-size: 1.5rem; background-color: #b50000; border: 0; border-radius: 10px; color: #fff; font-weight: bolder; cursor: pointer; display: block; }
+        /*- 按鈕們 -------------------------------------------------------------------------------------------------------------------------*/
+        #shareBtn { 
+            width: 100%; 
+            height: 80px; 
+            top: 0; 
+            left: 0;
+            font-size: 1.5rem; 
+            background-color: #b50000; 
+            border: 0; 
+            border-radius: 10px; 
+            color: #fff; 
+            font-weight: bolder; 
+            cursor: pointer; 
+            display: block; 
+        }
         #toggleRemark {
             top: 175px;
             right: -32px;
@@ -114,13 +139,13 @@
             background-color: #00b5b5;
         }
         #addNewTr {
-            bottom: 200px;
+            bottom: 400px;
             left: -32px;
             transform: translateX(-100%);
             background-color: #004eb5;
         }
         #removeTr {
-            bottom: 260px;
+            bottom: 340px;
             left: -32px;
             transform: translateX(-100%);
             background-color: #b50000;
@@ -149,17 +174,24 @@
             color: #fff;
         }
 
+        /* - 隱藏備註欄 ------------------------------------------------------------------------------------------------ */
+        /* 所有排在 tr 裡面的最後一項 th 和 td 都要隱藏 */
         table.hideRemark tbody tr :is(td, th):last-child {
             display: none;
         }
 
-        table.mergeTotal tbody tr:not(:nth-child(1), :nth-child(2)) td:has(.single_total){
+        /* - 合併單項總金額 -------------------------------------------------------------------------------------------- */
+        /* 第一項(nth-child(2)) 以外的 "單項總金額" 的 td 都要隱藏*/
+        table.mergeTotal tbody tr:not(:nth-child(2)) td:has(.single_total) {
             display: none !important;
         }
+
+        /* 第一項(nth-child(2)) 的 td 裡面的 .single_total 也要隱藏 */
         table.mergeTotal tbody tr:nth-child(2) td .single_total{
             display: none;
         }
 
+        /* 第一項(nth-child(2)) 的 td 裡面的 div 就要顯示( 它是合併後的金額欄位輸入框 ) */
         table.mergeTotal tbody tr:nth-child(2) td:has(.single_total) div{
             width: 100%;
             height: 100%;
@@ -170,28 +202,78 @@
             justify-content: flex-end;
             padding: 0 5pt;
         }
-        table.mergeTotal :is(#price_th, td:has(.money)) {
-            display: none;
-        }
-        #version {
+
+        /* 整個單價的 th 跟 td 都要藏起來 */
+        table.mergeTotal :is(#price_th, td:has(.money)) { display: none; }
+        /* ------------------------------------------------------------------------------------------------------------ */
+
+        #version { /* 估價單左下方的版本號碼 */
             position: absolute;
-            bottom: -30px;
+            bottom: calc(120px);
             left: 0;
             color: #777;
             font-size: 1rem;
+            z-index: 1;
         }
+
+        #cover {
+            width: 100vw;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #0000008a;
+            z-index: 1;
+        }
+        #choose_record {
+            position: fixed;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 750px;
+            min-width: 300px;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            height: 600px;
+            z-index: 2;
+        }
+        #new_record_input {width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;}
+        #new_record_btn { width: 120px; height: 48px; margin-top: 8px; border: 0; border-radius: 5px; background-color: #004eb5; color: #fff; cursor: pointer; font-size: 1rem; }
+        #new_record_btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        #old_estimates_record > div {
+            width: calc(100% - 2rem); 
+            padding: 5px 1rem; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            margin: .5rem; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #old_estimates_record > div > button {
+            width: 120px;
+            height: 48px;
+            border-radius: 5px;
+            border: 0;
+            background-color: #006900;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div id="container">
-    <div id="version">1.0.0</div>
+    <div id="version">1.0.1</div>
     <button class="btn" id="clearAll">全部清空</button>
+    <button class="btn" id="addNewTr">新增一行</button>
+    <button class="btn" id="removeTr" onclick="removeTrFromTbody()">刪除一行</button>
+    
     <button class="btn" id="toggleRemark">隱藏備註欄</button>
     <button class="btn" id="toggleTotalMerge">合併金額</button>
     <button class="btn" id="toggleAutoCounting">全部自動計算中...</button>
-    <button class="btn" id="addNewTr">新增一行</button>
-    <button class="btn" id="removeTr">刪除一行</button>
     <div style="
         width: 50px; 
         height: 50px;
@@ -286,35 +368,84 @@
             <span contenteditable="true" id="phone"></span>
         </div>
     </div>
+    <div style="padding-top: 70px; background-color: #ccc;">
+        <button id="shareBtn" onclick="sharePDF()">分享估價單</button>
+    </div>
 </div>
 
-<button id="shareBtn" onclick="sharePDF()">分享估價單</button>
+<div id="cover"></div>
+<div id="choose_record">
+    <h2>開新的估價單</h2>
+    <input id="new_record_input" type="text" placeholder="請輸入名稱">
+    <button id="new_record_btn" disabled>
+        確定
+    </button>
 
+    <h2 id="old_estimates_record_title" style="margin-top: 36px;">舊的估價單</h2>
+    <div id="old_estimates_record" style="width: 100%; border: 1px solid #ccc; margin-top: 8px; height: 300px; border-radius: 5px; overflow-y: scroll;">
+        <div>
+            <h3>社口國小</h3>
+            <button>打開</button>
+        </div>
+    </div>
+</div>
 <script>
 let isRemarkVisible = true;
 let isAutoCounting = true;
 let isTotalMerged = false;
+let currentRecordIndex = -1;
 
 window.onload = function() {
     setTodayDate()
-    const estimates = JSON.parse(localStorage.getItem('estimates')) || [];
-    const rowCount = Math.max(10, estimates.length)
-    for(let i = 0; i < rowCount; i++) { addNewTrToTobdy(i) }
-
-    loadFromLocalStorage();
-    setTimeout(() => { bindEvents(); }, 0);
+    const currentRecord = getRecords();
+    let records_html = ''
+    if ( currentRecord.length === 0 ) {
+        document.querySelector('#old_estimates_record_title').remove();
+        document.querySelector('#old_estimates_record').remove();
+        document.querySelector('#choose_record').style.height = '230px';
+    } else {
+        document.querySelector('#choose_record').style.height = '';
+        currentRecord.forEach( (record, index) => {
+            records_html += `
+                <div>
+                    <h3>${record.customerName}</h3>
+                    <button onclick="loadFromLocalStorage(${index})">打開</button>
+                </div>
+            `;
+        });
+        document.querySelector('#old_estimates_record').innerHTML = records_html;
+    }
 };
+
+document.querySelector('#new_record_input').addEventListener('input', (e) => {
+    const input = e.target;
+    const btn = document.querySelector('#new_record_btn');
+    if (input.value.trim() === '') { btn.setAttribute('disabled', true); } 
+    else { btn.removeAttribute('disabled'); }
+});
+
+document.querySelector('#new_record_btn').addEventListener('click', (e) => {
+    const input = document.querySelector('#new_record_input');
+    const recordName = input.value.trim();
+    document.querySelector('#customerName>div[contenteditable="true"]').textContent = recordName;
+    document.querySelector('#choose_record').remove();
+    document.querySelector('#cover').style.display = 'none';
+    const recordCount = getRecords().length;
+    if( recordCount === 0 ) { currentRecordIndex = 0; }
+    else { currentRecordIndex = recordCount; }
+    for(let i = 0; i < 5; i++) { addNewTrToTobdy(i) }
+    saveToLocalStorage();
+});
 
 function removeTrFromTbody() {
     const tbody = document.querySelector('#estimateBody');
     if (tbody.children.length > 1) {
         tbody.removeChild(tbody.lastElementChild);
     }
+    setTimeout(()=>{saveToLocalStorage()}, 0);
 }
 
 function bindEvents() {
-
-    bindAutoCounting();
 
     document.querySelector('#toggleRemark').addEventListener('click', (e) => {
         isRemarkVisible = !isRemarkVisible;
@@ -344,24 +475,12 @@ function bindEvents() {
             document.querySelector('tbody tr:nth-child(2) td:has(.single_total)').setAttribute('rowspan', index + 1);
         }
         addNewTrToTobdy(index);
-        setTimeout(()=>{ saveToLocalStorage() }, 0);
-    });
-
-    document.querySelector('#removeTr').addEventListener('click', (e) => {
-        removeTrFromTbody();
-        setTimeout(()=>{ saveToLocalStorage() }, 0);
-    });
-
-    document.querySelectorAll('[contenteditable="true"]:not(.money, .count)').forEach(elm => {
-        elm.addEventListener('input', (e) => {
-            setTimeout(()=>{ saveToLocalStorage() }, 0);
-        });
     });
 
     document.querySelector('#clearAll').addEventListener('click', (e) => {
         if (confirm('確定要清空所有資料嗎？')) {
             localStorage.clear();
-            document.querySelectorAll('[contenteditable="true"]').forEach(elm => elm.innerText = '');
+            document.querySelectorAll('[contenteditable="true"]:not(#customerName>div[contenteditable="true"])').forEach(elm => elm.innerText = '');
             document.querySelectorAll('.single_total').forEach(elm => elm.innerText = '');
             document.querySelectorAll('.editable-td').forEach(elm => elm.innerText = '');
             document.querySelectorAll('select').forEach(elm => elm.selectedIndex = 0);
@@ -380,46 +499,22 @@ function bindEvents() {
         e.target.style.backgroundColor = isAutoCounting ? '#5100b5' : 'gray';
         e.target.innerText = isAutoCounting ? '全部自動計算中...' : '計算總金額中...';
         if(isAutoCounting) {
-            bindAutoCounting();
-        } else {
-            document.querySelectorAll('.money, .count').forEach(span => {
-                span.removeEventListener('input', inputCountOrMoney);
+            document.querySelectorAll('span.single_total').forEach(span => {
+                span.removeAttribute('contenteditable');
             });
+        } else {
             document.querySelectorAll('.single_total').forEach(span => {
                 span.setAttribute('contenteditable', true);
             });
         }
     });
 
-    document.querySelectorAll('.single_total').forEach(span => {
-        span.addEventListener('input', (e) => {
-            let singleTotalValue = (parseInt(span.innerText.replace(/[^0-9]+/g, '')) || 0).toLocaleString('zh-TW')
-            if(singleTotalValue === '非數值' || singleTotalValue === '0') { singleTotalValue = ''; }
-            span.innerText = singleTotalValue
-            let range = document.createRange();
-            let sel = window.getSelection();
-            range.selectNodeContents(span);
-            range.collapse(false);
-            sel.removeAllRanges();
-            sel.addRange(range);
-            updateChineseNumber();
-            setTimeout(()=>{ saveToLocalStorage() }, 0);
-        });
-    });
-
-    document.querySelectorAll('.unit').forEach(input => {
-        input.addEventListener('change', (e) => {
-            setTimeout(()=>{ saveToLocalStorage() }, 0);
-        });
-    })
-
     document.querySelector('#toggleTotalMerge').addEventListener('click', e => {
-        const mergeTotalValue = localStorage.getItem('mergeTotalValue') || '0';
-        toggleTotalMerge(e, mergeTotalValue)
+        toggleTotalMerge(e, getRecords()[currentRecordIndex].mergeTotalValue)
     });
 }
 
-function toggleTotalMerge(e, totalvalue=0){
+function toggleTotalMerge(e, totalvalue=0, isInit=false){
     isTotalMerged = !isTotalMerged;
     e.target.style.backgroundColor = isTotalMerged ? 'gray' : '#cf6e00';
     e.target.innerText = isTotalMerged ? '分開金額欄位' : '合併金額欄位';
@@ -458,10 +553,7 @@ function toggleTotalMerge(e, totalvalue=0){
         });
         document.querySelector('#single_total_th').setAttribute('colspan', 2);
         mainTd.setAttribute('colspan', 2);
-        setTimeout(()=>{ 
-            updateChineseNumber();
-            saveToLocalStorage();
-        }, 0)
+        setTimeout(()=>{ updateChineseNumber(); }, 0)
     } else {
         toggleAutoCounting.removeAttribute('disabled');
         toggleAutoCounting.style.cursor = 'pointer';
@@ -477,19 +569,9 @@ function toggleTotalMerge(e, totalvalue=0){
         document.querySelector('#single_total_th').setAttribute('colspan', 1);
         mainTd.setAttribute('colspan', 1);
         updateChineseNumber();
-        setTimeout(()=>{ saveToLocalStorage() }, 0)
         document.querySelector('#totalRow td:nth-child(2)').setAttribute('colspan', isRemarkVisible && !isTotalMerged ? 6 : 5);
     }
-
-}
-
-function bindAutoCounting() {
-    document.querySelectorAll('.money, .count').forEach(span => {
-        span.addEventListener('input', inputCountOrMoney);
-    });
-    document.querySelectorAll('span.single_total').forEach(span => {
-        span.removeAttribute('contenteditable');
-    });
+    if( !isInit ) { saveToLocalStorage(); }
 }
 
 function inputCountOrMoney(e) {
@@ -510,15 +592,15 @@ function inputCountOrMoney(e) {
     }, 0);
 }
 
-function addNewTrToTobdy(index){
+function addNewTrToTobdy(index, isInit=false){
     const tr = document.createElement('tr');
     tr.innerHTML = `
         <td>${index + 1}</td>
-        <td style="min-width: 180px; width: 180px;"><span contenteditable="true" class="editable-td"></span></td>
-        <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td"></span></td>
-        <td style="min-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count"></span></td>
+        <td style="min-width: 180px; width: 180px;"><span contenteditable="true" class="editable-td" oninput="saveToLocalStorage()"></span></td>
+        <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td" oninput="saveToLocalStorage()"></span></td>
+        <td style="min-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count" oninput="inputCountOrMoney(event)"></span></td>
         <td style="min-width: 30px; width: 30px;">
-            <select class="unit">
+            <select class="unit" onchange="saveToLocalStorage()">
                 <option></option>
                 <option>式</option>
                 <option>面</option>
@@ -534,13 +616,14 @@ function addNewTrToTobdy(index){
                 <option>輛</option>  
             </select>
         </td>
-        <td style="min-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money"></span></td>
+        <td style="min-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money" oninput="inputCountOrMoney(event)"></span></td>
         <td style="min-width: 120px; width: 120px;">
-            <span contenteditable="true" class="single_total editable-td"></span>
+            <span class="single_total editable-td" oninput="updateSingleTotalWhenNotAutoCounting(event)"></span>
         </td>
-        <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td"></span></td>
+        <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td" oninput="saveToLocalStorage()"></span></td>
     `;
     document.querySelector('#estimateBody').appendChild(tr);
+    if( !isInit ) { saveToLocalStorage(); }
 }
 
 function setTodayDate() {
@@ -566,9 +649,28 @@ function updateSingleTotal(tr) {
     if(singleTotal === '非數值') { singleTotal = ''; }
     if(singleTotal === '0') { singleTotal = ''; }
     singleTotalElm.innerText = singleTotal;
-    if(!localStorage.getItem('isTotalMerged') === 'true'){
+    if(!getRecords()[currentRecordIndex].isTotalMerged === 'true'){
         updateChineseNumber();
     }
+    if( isAutoCounting ) { updateChineseNumber() }
+}
+
+function updateSingleTotalWhenNotAutoCounting(e){
+    const span = e.target;
+    let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
+    let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
+    if(formattedValue === '非數值') { formattedValue = ''; }
+    setTimeout(() => {
+        span.innerText = formattedValue;
+        let range = document.createRange();
+        let sel = window.getSelection();
+        range.selectNodeContents(span);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        updateChineseNumber()
+        setTimeout(()=>{ saveToLocalStorage() }, 0);
+    }, 0);
 }
 
 function updateChineseNumber() {
@@ -680,44 +782,62 @@ function saveToLocalStorage() {
             remark: cells[7].innerText
         };
     });
-    
-    localStorage.setItem('isTotalMerged', isTotalMerged);
-    if(isTotalMerged) {
-        const mergeTotalValue = document.querySelector('tbody tr:nth-child(2) td:has(.single_total) div').innerText
-        localStorage.setItem('mergeTotalValue', mergeTotalValue);
+    const mergeTotal = document.querySelector('tbody tr:nth-child(2) td:has(.single_total) div');
+    let mergeTotalValue = mergeTotal?.innerText;
+    if( !mergeTotal ) { 
+        mergeTotalValue = getRecords()[currentRecordIndex]?.mergeTotalValue;
     }
-    
-    localStorage.setItem('customerName', customerName);
-    localStorage.setItem('overallRemark', overallRemark);
-    localStorage.setItem('validDays', validDays);
-    localStorage.setItem('handler', handler);
-    localStorage.setItem('phone', phone);
-    localStorage.setItem('taxed', taxed);
-    localStorage.setItem('untax', untax);
-    localStorage.setItem('date', `${year}-${month}-${day}`);
-    localStorage.setItem('estimates', JSON.stringify(estimates));
+    const record = {
+        isRemarkVisible,
+        isTotalMerged,
+        mergeTotalValue,
+        customerName,
+        overallRemark,
+        validDays,
+        handler,
+        phone,
+        taxed,
+        untax,
+        date: `${year}-${month}-${day}`,
+        estimates
+    };
+
+    const currentRecord = getRecords();
+    if( currentRecordIndex === -1 ) return;
+    currentRecord[currentRecordIndex] = record; // 更新現有記錄
+
+    const stringifyRecord = JSON.stringify(currentRecord);
+    localStorage.setItem('estimate_records', stringifyRecord);
 
 }
 
-function loadFromLocalStorage() {
-    const isTotalMerged_ = localStorage.getItem('isTotalMerged') === 'true';
-    const customerName = localStorage.getItem('customerName');
-    const validDays = localStorage.getItem('validDays');
-    const handler = localStorage.getItem('handler');
-    const phone = localStorage.getItem('phone');
-    const taxed = localStorage.getItem('taxed') === 'true';
-    const untax = localStorage.getItem('untax') === 'true';
-    const date = localStorage.getItem('date');
-    const overallRemark = localStorage.getItem('overallRemark')
-    const estimates = JSON.parse(localStorage.getItem('estimates')) || [];
-    
-    if (customerName) {
-        document.querySelector('#customerName [contenteditable="true"]').innerText = customerName;
-    }
+function loadFromLocalStorage( index ) {
+    currentRecordIndex = index;
+    document.querySelector('#choose_record').remove();
+    document.querySelector('#cover').style.display = 'none';
 
-    if(overallRemark) {
-        document.querySelector('#overallRemark').textContent = overallRemark;
-    }
+    const currentRecord = getRecords();
+    const record = findRecord( index );
+    if ( !record ) return; // 如果沒有記錄，則不做任何事
+    
+    const isRemarkVisible_ = record.isRemarkVisible;
+    const isTotalMerged_ = record.isTotalMerged;
+    const customerName = record.customerName;
+    const validDays = record.validDays;
+    const handler = record.handler;
+    const phone = record.phone;
+    const taxed = record.taxed;
+    const untax = record.untax;
+    const date = record.date;
+    const overallRemark = record.overallRemark;
+    const estimates = record.estimates || [];
+
+    const rowCount = Math.max(estimates.length)
+    for(let i = 0; i < rowCount; i++) { addNewTrToTobdy(i, true) }
+    bindEvents();
+    
+    if (customerName) { document.querySelector('#customerName [contenteditable="true"]').innerText = customerName; }
+    if(overallRemark) { document.querySelector('#overallRemark').textContent = overallRemark; }
     
     if (date) {
         const [year, month, day] = date.split('-');
@@ -726,17 +846,9 @@ function loadFromLocalStorage() {
         document.getElementById('day').innerText = day;
     }
 
-    if (validDays) {
-        document.querySelector('#validDays').innerText = validDays;
-    }
-
-    if (handler) {
-        document.getElementById('handler').innerText = handler;
-    }
-
-    if (phone) {
-        document.getElementById('phone').innerText = phone;
-    }
+    if (validDays) { document.querySelector('#validDays').innerText = validDays; }
+    if (handler) { document.getElementById('handler').innerText = handler; }
+    if (phone) { document.getElementById('phone').innerText = phone; }
 
     document.getElementById('taxed').checked = taxed;
     document.getElementById('untax').checked = untax;
@@ -754,13 +866,44 @@ function loadFromLocalStorage() {
     });
     updateSingleTotal(tbody.lastElementChild);
 
-    if(isTotalMerged_) {
-        const mergeTotalValue = localStorage.getItem('mergeTotalValue') || '0';
-        toggleTotalMerge({ target: document.querySelector('#toggleTotalMerge') }, mergeTotalValue);
+    if( isTotalMerged_ ) {
+        const mergeTotalValue = record.mergeTotalValue || '0';
+        toggleTotalMerge({ target: document.querySelector('#toggleTotalMerge') }, mergeTotalValue, true);
         document.querySelector('tbody tr:nth-child(2) td:has(.single_total) div').innerText = mergeTotalValue;
     }
+
+    /*--------------------------------------------------*/
+    if( isRemarkVisible_ ) { isRemarkVisible = true; } 
+    else { isRemarkVisible = false; }
+    const table = document.querySelector('table');
+    if (isRemarkVisible) { table.classList.remove('hideRemark'); } 
+    else { table.classList.add('hideRemark'); }
+    const remarkVisibleBtn = document.getElementById('toggleRemark');
+    remarkVisibleBtn.style.backgroundColor = isRemarkVisible ? '#00b5b5' : 'gray';
+    remarkVisibleBtn.innerText = isRemarkVisible ? '隱藏備註欄' : '顯示備註欄';
+    document.querySelectorAll('tbody tr :is(td, th):nth-last-child(2)').forEach(t => {
+        t.setAttribute('colspan', isRemarkVisible ? '1' : '2');
+        t.style.minWidth = isRemarkVisible ? '100px' : '150px';
+    })
+    document.querySelectorAll('tbody tr td:nth-child(2)').forEach(t => {
+        t.style.width = isRemarkVisible ? '180px' : '100%';
+    })
+    document.querySelector('#totalRow td:nth-child(2)').setAttribute('colspan', isRemarkVisible && !isTotalMerged ? 6 : 5);
 }
 
+function findRecord( index ) {
+    const currentRecord = getRecords();
+    if( currentRecord.length === 1 ) { return currentRecord[0]; }
+    else if( currentRecord.length === 0 ) { return null; }
+    else { currentRecord[currentRecord.length - 1] }
+    return currentRecord[index];
+
+}
+
+function getRecords() {
+    const estimates = JSON.parse(localStorage.getItem('estimate_records')) || [];
+    return estimates;
+}
 </script>
 </body>
 </html>
