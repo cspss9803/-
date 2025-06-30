@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh_TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 508.928 508.928'%3E%3Cpath style='fill:rgb(255,59,59)' d='M403.712 201.04H256.288L329.792 0 105.216 307.888H252.64l-73.504 201.04z'/%3E%3C/svg%3E">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>工作紀錄單</title>
+<style>
+* { margin:0; padding:0; border:0; position:relative; box-sizing:border-box; font-family:'微軟正黑體'; }
+button { width: 120px; height: 48px; border-radius: 5px; background-color:#1a63ff; color:#fff; cursor:pointer;font-size:1rem; }
+body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200px; }
+:root { --main-color: #b50000; }
+</style>
+</head>
+<body>
+
+<div style="display: flex; gap: 20px;">
+
+    <!-- 左側按鈕列 -->
+    <div>
+        <button style="visibility: hidden;width:150px;z-index:-1;"></button>
+        <button style="background-color: #a000b5; position: absolute; top: 0; left: 32px;" onclick="clearAll()">清空</button>
+        <button style="background-color: #0039b5; position: absolute; bottom: 100px; left: 32px;" onclick="addTableRow(document.querySelector('tbody').children.length+1);save()">新增列</button>
+        <button style="background-color: #b50000; position: absolute; bottom: 155px; left: 32px;" onclick="const tbody=document.querySelector('tbody');if(tbody.children.length>1){tbody.removeChild(tbody.lastElementChild)}save()">刪除列</button>
+    </div>
+
+    <!-- 表單 -->
+    <div style="min-width: 210mm;width: min-content;height: min-content;margin: 0 0 50px; background-color: white;user-select: none;">
+        <div id="content" style="width: 100%;padding: 3mm 10mm 10mm;background-color: white;">
+            <!-- 標題 -->
+            <h1 style="text-align: center; letter-spacing: 8pt; font-size: 32pt; color: var(--main-color);">工作紀錄單</h1>
+            <hr style="border: 1pt solid var(--main-color); margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%);"/>
+
+            <!-- 員工名稱 -->
+            <div style="display: flex; align-items: center;">
+                <style>#staffName::before { content: ""; position: absolute; bottom: 0; width: calc(100% + 96pt); left: 0; height: 2pt; background-color: var(--main-color); }</style>
+                <div oninput="save()" id="staffName" contenteditable="true" style=" min-width: 150pt;font-size: 18pt;letter-spacing: 2pt;height: 32pt;padding: 5pt 16pt 0 16pt;"></div>
+                <span style="font-size: 18pt; white-space: nowrap; margin-left: 5pt; color: var(--main-color);">先生/小姐</span>
+            </div>
+
+            <!-- 表格 -->
+            <table style="width: 100%; margin-top: 10pt;">
+                <style>
+                    table, th, td { border-collapse: collapse; }
+                    th{ background-color: var(--main-color); color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
+                    th:first-child { border-left: 1px solid var(--main-color); } /* 第一個 th 左邊框設為紅色*/
+                    th:last-child { border-right: 1px solid var(--main-color); } /* 最後的 th 右邊框設為紅色*/
+                    td { height: 39px; border: 1px solid var(--main-color); box-sizing: content-box; font-weight: bolder; }
+                    td:nth-child(1) { width: 18px; min-width: 18px; text-align: center; font-size: 0.7rem; color: var(--main-color);font-weight: bolder; }
+                    td>span { width: 100%; height: 100%; display: inline-block; word-wrap: break-word; white-space: pre-wrap; font-weight: bolder;padding: 8px; }
+                </style>
+
+                <!-- 表頭 -->
+                <thead>
+                    <tr>
+                        <th colspan="2" style="min-width: 130px; width: 130px;">日期</th>
+                        <th style="min-width: 60px; width: 60px;">工時</th>
+                        <th style="min-width: 178px;">地點</th>
+                        <th style="min-width: 178px;">內容</th>
+                        <th style="min-width: 178px;">備註</th>
+                    </tr>
+                </thead>
+
+                <!-- 表體 -->
+                <style>
+                    select { -webkit-appearance: none;appearance: none;width: 100%;height: 100%;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 14px; }
+                    input[type="date"] { background: transparent; color:#000; font-weight:bolder;width: 100%;height: 100%;text-align:center;}
+                    input[type="date"]::-webkit-calendar-picker-indicator {background: transparent;bottom: 0;color: transparent;cursor: pointer;height: auto;left: 0;position: absolute;right: 0;top: 0;width: auto;}
+                    input[type="date"] { -webkit-appearance: none;}
+                </style>
+                <tbody></tbody>
+
+                <!-- 表尾 -->
+                <tfoot>
+                    <tr>
+                        <td style="color: var(--main-color); text-align: center;">總備註</td>
+                        <td colspan="7">
+                            <span id="overallRemark" oninput="save()" contenteditable="true" style="width: 100%; min-height: 4rem; padding: 5pt; display: block;"></span>
+                        </td>
+                    </tr>
+                </tfoot>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- 右側按鈕列 -->
+    <div>
+        <button style="visibility: hidden;width:150px;z-index:-1;"></button>
+        <button style="background-color: #ca0000; position: absolute; top: 0; left: 0; width: 180px;" onclick="deleteWorkSheet()">刪除這張工作紀錄單</button>
+    </div>
+
+</div>
+
+<!-- 儲檔選擇介面 -->
+<div id="cover" style="width: 100%;height: 100%;position: fixed;top: 0;left: 0;background-color: rgba(0,0,0,.8);z-index: 1;">
+    <div id="choose_record" style="position: absolute;top: 50px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 750px;min-width: 300px;padding: 2rem;background-color: #fff;border-radius: 10px;max-height: 600px;overflow-y: auto;z-index: 2;">
+        <h2>開新的工作紀錄單</h2>
+        <input id="new_record_input" type="text" placeholder="請輸入員工名稱" oninput="const btn=document.querySelector('#new_record_btn');if(event.target.value.trim()===''){btn.setAttribute('disabled',true);}else{btn.removeAttribute('disabled');}" style="width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;">
+        <style>#new_record_btn:disabled { background-color: #ccc; cursor: not-allowed; }</style>
+        <button disabled id="new_record_btn" style="margin-top: 8px;" onclick="openNewWorkSheet()">確定</button>
+        <h2 id="usage_percentage" style="margin-top: 32px;">目前用量</h2>
+        <div style="position: relative;">
+            <style>
+                ::-webkit-progress-value { background-color: rgb(32, 110, 255); }
+                ::-moz-progress-value { background-color: rgb(32, 110, 255); }
+                ::-webkit-progress-bar { background-color: rgb(190, 190, 190); }
+                ::-moz-progress-bar { background-color: rgb(190, 190, 190); }
+            </style>
+            <progress id="usage" value="0" max="100" style="width: 100%;position: relative;-webkit-appearance: none;-moz-appearance: none;border-radius:20px; overflow: hidden; height: 12px;"></progress>
+            <span id="remain_usage" style="position: absolute; right: 0; top: -14px; text-align: right;">max</span>
+            <span id="current_usage" style="position: absolute; left: 0; bottom: -24px; text-align: center;">current</span>
+        </div>
+        <h2 id="old_work_record_title" style="margin-top: 64px;">舊的工作紀錄單</h2>
+        <div id="old_work_record" style="width: 100%; border: 1px solid #ccc; margin-top: 8px; height: 300px; border-radius: 5px; overflow-y: scroll;">
+            <style>#old_work_record > div {width: calc(100% - 2rem); padding: 5px 1rem; border: 1px solid #ccc; border-radius: 5px; margin: .5rem; display: flex;justify-content: space-between;align-items: center;}</style>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+const STORAGENAME = 'work_records';
+let currentRecordIndex = -1;
+
+window.onload = function() {
+    const currentRecord = getRecords();
+    const fragment = document.createDocumentFragment();
+    currentRecord.forEach( (record, index) => {
+        const template = document.createElement("template");
+        template.innerHTML = `
+            <div>
+                <h3>${record.staffName}</h3>
+                <button onclick="load(${index})">打開</button>
+            </div>
+        `.trim();
+        fragment.appendChild(template.content);
+    });
+    document.querySelector('#old_work_record').appendChild(fragment);
+}
+
+function addTableRow( index ){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${ index }</td>
+        <td><input type="date" onchange="save()"/></td>
+        <td>
+            <select onchange="save()">
+                <option></option>
+                <option>整天</option>
+                <option>半天</option>
+            </select>
+        </td>
+        <td><span contenteditable="true" oninput="save()"></span></td>
+        <td><span contenteditable="true" oninput="save()"></span></td>
+        <td><span contenteditable="true" oninput="save()"></span></td>
+    `;
+    document.querySelector('tbody').appendChild(tr);
+}
+
+function openNewWorkSheet(){
+    currentRecordIndex = getRecords().length;
+    const staff = document.querySelector('#new_record_input').value.trim();
+    document.querySelector('#staffName').textContent = staff;
+    for(let i = 0; i < 5; i++) { addTableRow(i+1) }
+    document.querySelector('#cover').remove();
+    save();
+}
+
+function save() {
+    const staffName = document.querySelector('#staffName').textContent;
+    const rows = Array.from(document.querySelectorAll('tbody>tr'));
+    const works = rows.map(row => {
+        const cells = row.querySelectorAll('td');
+        return {
+            date: cells[1].querySelector('input[type="date"]').value,
+            workTime: cells[2].querySelector('select').selectedIndex,
+            place: cells[3].querySelector('span[contenteditable="true"]').textContent,
+            content: cells[4].querySelector('span[contenteditable="true"]').textContent,
+            remark: cells[5].querySelector('span[contenteditable="true"]').textContent
+        };
+    });
+    const remark = document.querySelector('#overallRemark').textContent;
+    
+    const record = { staffName, works, remark }
+    const currentRecord = getRecords();
+    currentRecord[currentRecordIndex] = record;
+    localStorage.setItem(STORAGENAME, JSON.stringify(currentRecord));
+}
+
+function load(index) {
+    currentRecordIndex = index;
+    const savedRecord = getRecords()[currentRecordIndex]
+    const works = savedRecord.works;
+    const rowCount = works.length;
+    for(let i = 0; i < rowCount; i++) { addTableRow(i+1) }
+    document.querySelector('#staffName').textContent = savedRecord.staffName;
+    document.querySelectorAll('tbody>tr').forEach( (tr, index) =>{
+        const tds = tr.querySelectorAll('td');
+        tds[1].querySelector('input[type="date"]').value = works[index].date;
+        tds[2].querySelector('select').selectedIndex = works[index].workTime;
+        tds[3].querySelector('span[contenteditable="true"]').textContent =  works[index].place;
+        tds[4].querySelector('span[contenteditable="true"]').textContent =  works[index].content;
+        tds[5].querySelector('span[contenteditable="true"]').textContent =  works[index].remark;
+    });
+    document.querySelector('#overallRemark').textContent = savedRecord.remark;
+    document.querySelector('#cover').remove();
+}
+
+function deleteWorkSheet() {
+    if (confirm('確定要 "刪除張工作紀錄" 嗎？')) {
+        const currentRecord = getRecords();
+        currentRecord.splice(currentRecordIndex, 1);
+        localStorage.setItem(STORAGENAME, JSON.stringify(currentRecord));
+        window.location.reload();
+    }
+}
+
+function getRecords() { return JSON.parse(localStorage.getItem(STORAGENAME)) || []; }
+
+function clearAll() {
+    if (confirm('確定要 "清空全部" 嗎？')) {
+        document.querySelectorAll('[contenteditable="true"]:not(#staffName)').forEach(el=>el.textContent='');
+        document.querySelectorAll('input[type="date"]').forEach(el=>el.value='');
+        document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+    }
+    save();
+}
+</script>
+
+<script src="./usage.js"></script>
+<script>
+const remain = getRemain();
+const { totalKB, usageDetail } = getUsage(STORAGENAME);
+document.querySelector('#usage').setAttribute('max', Number(totalKB) + Number(remain));
+document.querySelector('#usage').setAttribute('value', Number(totalKB));
+document.querySelector('#remain_usage').textContent = `剩餘 ${Number((Number(remain)).toFixed()).toLocaleString('zh-TW')} kb`;
+document.querySelector('#current_usage').textContent = Number(totalKB) + ' kb'
+document.querySelector('#usage_percentage').textContent = `目前用量: ${ ((Number(totalKB) / (Number(totalKB) + Number(remain)).toFixed() * 100).toFixed(2)) || 0 }%`;
+</script>
+
+
+</html>

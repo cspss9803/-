@@ -7,26 +7,13 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 508.928 508.928'%3E%3Cpath style='fill:rgb(255,59,59)' d='M403.712 201.04H256.288L329.792 0 105.216 307.888H252.64l-73.504 201.04z'/%3E%3C/svg%3E">
     <style>
         * { box-sizing: border-box; margin: 0; position: relative; }
-        body { background-color: #ccc; overscroll-behavior-y: contain; padding: 50px 0 200px; }
+        body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200px; }
         h1 { text-align: center; letter-spacing: 32pt; font-size: 32pt; color: #b50000; }
         hr { border: 1pt solid #b50000; margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%); }
 
         /*--------------------------------------------------------------*/
-        #container {
-            min-width: 210mm;
-            width: min-content;
-            height: min-content;
-            margin: 0 0 50px;
-            left: 180px;
-            background-color: white;
-            user-select: none;
-        }
-        #content {
-            width: 100%;
-            padding: 3mm 10mm 10mm;
-            background-color: white;
-            font-family: Arial, sans-serif;
-        }
+        #container {min-width: 210mm;width: min-content;height: min-content;margin: 0 0 50px;left: 180px;background-color: white;user-select: none; }
+        #content {width: 100%;padding: 3mm 10mm 10mm;background-color: white;font-family: Arial, sans-serif;}
         [contenteditable="true"] { display: inline-block; word-wrap: break-word; white-space: pre-wrap; font-weight: bolder; }
 
         /* 台照 */
@@ -76,207 +63,55 @@
         #validDate span:nth-child(1) { font-size: 12pt; color: #b50000; }
         #validDate .date [contenteditable="true"] { color: black; }
         #tax { margin-top: 5pt; }
-        input[type="checkbox"] { 
-            -webkit-appearance: none;
-            appearance: none;
-            margin-right: 5pt; 
-            aspect-ratio: 1/1; 
-            width: 18px; 
-            margin-right: -2pt; 
-            transform: translateY(-1px); 
-            border: 1px solid #333;
-            border-radius: 4px;
-            background-color: white;
-            color: #fff;
-        }
+        input[type="checkbox"] { -webkit-appearance: none;appearance: none;margin-right: 5pt; aspect-ratio: 1/1; width: 18px; margin-right: -2pt; transform: translateY(-1px); border: 1px solid #333;border-radius: 4px;background-color: white;color: #fff;}
         input[type="checkbox"]:checked { background-color: #b50000; border: 1px solid #b50000; }
-        input[type="checkbox"]:checked::before {
-            content: "";
-            position: absolute;
-            top: calc(50% + 1px);
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 12px;
-            height: 12px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.813 417"><path style="fill:rgb(255,255,255)" d="M159.988 318.582c-3.988 4.012-9.43 6.25-15.082 6.25s-11.094-2.238-15.082-6.25L9.375 198.113c-12.5-12.5-12.5-32.77 0-45.246l15.082-15.086c12.504-12.5 32.75-12.5 45.25 0l75.2 75.203L348.104 9.781c12.504-12.5 32.77-12.5 45.25 0l15.082 15.086c12.5 12.5 12.5 32.766 0 45.246zm0 0"></path></svg>') no-repeat center center;
-        }
-        .unit {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            background: transparent;
-            text-align: center;
-            font-weight: bolder;
-            color: #000;
-            font-size: 10pt;
-            padding: 0 8px;
-        }
+        input[type="checkbox"]:checked::before { content: "";position: absolute;top: calc(50% + 1px);left: 50%;transform: translate(-50%, -50%);width: 12px;height: 12px;background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.813 417"><path style="fill:rgb(255,255,255)" d="M159.988 318.582c-3.988 4.012-9.43 6.25-15.082 6.25s-11.094-2.238-15.082-6.25L9.375 198.113c-12.5-12.5-12.5-32.77 0-45.246l15.082-15.086c12.504-12.5 32.75-12.5 45.25 0l75.2 75.203L348.104 9.781c12.504-12.5 32.77-12.5 45.25 0l15.082 15.086c12.5 12.5 12.5 32.766 0 45.246zm0 0"></path></svg>') no-repeat center center;}
+        .unit { -webkit-appearance: none;appearance: none;width: 100%;height: 100%;border: 0;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 8px; }
         #tax span:not([contenteditable="true"]) { font-size: 12pt; color: #b50000; top: -3pt; }
         #sign span:not([contenteditable="true"]) {font-size: 12pt;color: #b50000; }
         #sign span:is([contenteditable="true"]) { min-width: 100pt; margin: 0 5pt 0 0; padding: 0 20pt 10pt 10pt; border-bottom: 1px solid #b50000; font-size: 18pt; height: 24pt; }
         
         /*- 按鈕們 -------------------------------------------------------------------------------------------------------------------------*/
-        #shareBtn { 
-            width: 100%; 
-            height: 80px; 
-            top: 0; 
-            left: 0;
-            font-size: 1.5rem; 
-            background-color: #b50000; 
-            border: 0; 
-            border-radius: 10px; 
-            color: #fff; 
-            font-weight: bolder; 
-            cursor: pointer; 
-            display: block; 
-        }
-        #toggleRemark {
-            top: 175px;
-            right: -32px;
-            transform: translateX(100%);
-            background-color: #00b5b5;
-        }
-        #addNewTr {
-            bottom: 400px;
-            left: -32px;
-            transform: translateX(-100%);
-            background-color: #004eb5;
-        }
-        #removeTr {
-            bottom: 340px;
-            left: -32px;
-            transform: translateX(-100%);
-            background-color: #b50000;
-        }
+        #shareBtn { width: 100%; height: 80px; top: 0; left: 0;font-size: 1.5rem; background-color: #b50000; border: 0; border-radius: 10px; color: #fff; font-weight: bolder; cursor: pointer; display: block; }
+        #toggleRemark { top: 175px;right: -32px;transform: translateX(100%);background-color: #00b5b5; }
+        #addNewTr { bottom: 400px;left: -32px;transform: translateX(-100%);background-color: #004eb5; }
+        #removeTr { bottom: 340px;left: -32px;transform: translateX(-100%);background-color: #b50000; }
         #clearAll { top: 87px; left: -32px; transform: translateX(-100%); background-color: #ae00ff; }
-        #toggleAutoCounting {
-            top: 0;
-            right: -32px;
-            transform: translateX(100%);
-            background-color: #5100b5;
-        }
-        #toggleTotalMerge {
-            top: 90px;
-            right: -32px;
-            transform: translateX(100%);
-            background-color: #cf6e00;
-        }
-        .btn {
-            position: absolute;
-            z-index: 1;
-            width: 120px;
-            height: 48px;
-            border: 0;
-            border-radius: 5px;
-            cursor: pointer;
-            color: #fff;
-        }
+        #toggleAutoCounting { top: 0;right: -32px;transform: translateX(100%);background-color: #5100b5; }
+        #toggleTotalMerge { top: 90px;right: -32px;transform: translateX(100%);background-color: #cf6e00; }
+        .btn { position: absolute;z-index: 1;width: 120px;height: 48px;border: 0;border-radius: 5px;cursor: pointer;color: #fff;}
 
         /* - 隱藏備註欄 ------------------------------------------------------------------------------------------------ */
         /* 所有排在 tr 裡面的最後一項 th 和 td 都要隱藏 */
-        table.hideRemark tbody tr :is(td, th):last-child {
-            display: none;
-        }
+        table.hideRemark tbody tr :is(td, th):last-child { display: none; }
 
         /* - 合併單項總金額 -------------------------------------------------------------------------------------------- */
         /* 第一項(nth-child(2)) 以外的 "單項總金額" 的 td 都要隱藏*/
-        table.mergeTotal tbody tr:not(:nth-child(2)) td:has(.single_total) {
-            display: none !important;
-        }
+        table.mergeTotal tbody tr:not(:nth-child(2)) td:has(.single_total) { display: none !important; }
 
         /* 第一項(nth-child(2)) 的 td 裡面的 .single_total 也要隱藏 */
-        table.mergeTotal tbody tr:nth-child(2) td .single_total{
-            display: none;
-        }
+        table.mergeTotal tbody tr:nth-child(2) td .single_total{ display: none; }
 
         /* 第一項(nth-child(2)) 的 td 裡面的 div 就要顯示( 它是合併後的金額欄位輸入框 ) */
-        table.mergeTotal tbody tr:nth-child(2) td:has(.single_total) div{
-            width: 100%;
-            height: 100%;
-            font-size: 14pt;
-            font-weight: bolder;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 0 5pt;
-        }
+        table.mergeTotal tbody tr:nth-child(2) td:has(.single_total) div{ width: 100%;height: 100%;font-size: 14pt;font-weight: bolder;display: flex;align-items: center;justify-content: flex-end;padding: 0 5pt;}
 
         /* 整個單價的 th 跟 td 都要藏起來 */
         table.mergeTotal :is(#price_th, td:has(.money)) { display: none; }
         /* ------------------------------------------------------------------------------------------------------------ */
 
-        #version { /* 估價單左下方的版本號碼 */
-            position: absolute;
-            bottom: calc(120px);
-            left: 0;
-            color: #777;
-            font-size: 1rem;
-            z-index: 1;
-        }
+        /* 估價單左下方的版本號碼 */
+        #version { position: absolute;bottom: calc(120px);left: 0;color: #777;font-size: 1rem;z-index: 1; }
 
-        #cover {
-            width: 100%;
-            height: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #000000e7;
-            z-index: 1;
-        }
-        #choose_record {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 750px;
-            min-width: 300px;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 10px;
-            /* height: 600px; */
-            max-height: 600px;
-            overflow: scroll;
-            z-index: 2;
-        }
+        #cover { width: 100%;height: 100%;position: fixed;top: 0;left: 0;background-color: #000000e7;z-index: 1; }
+        #choose_record { position: absolute;top: 50px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 750px;min-width: 300px;padding: 2rem;background-color: #fff;border-radius: 10px;max-height: 600px;overflow: scroll;z-index: 2; }
         #new_record_input {width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;}
         #new_record_btn { width: 120px; height: 48px; margin-top: 8px; border: 0; border-radius: 5px; background-color: #004eb5; color: #fff; cursor: pointer; font-size: 1rem; }
         #new_record_btn:disabled { background-color: #ccc; cursor: not-allowed; }
-        #old_estimates_record > div {
-            width: calc(100% - 2rem); 
-            padding: 5px 1rem; 
-            border: 1px solid #ccc; 
-            border-radius: 5px; 
-            margin: .5rem; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #old_estimates_record > div > button {
-            width: 120px;
-            height: 48px;
-            border-radius: 5px;
-            border: 0;
-            background-color: #006900;
-            color: #fff;
-            cursor: pointer;
-            font-size: 1rem; 
-        }
-
-        progress{
-            width: 100%;
-            position: relative;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            border-radius:20px;   /* 圓角 */
-            overflow: hidden;     /* 超過範圍就裁切 */
-            height: 12px;          /* 高度 */
-        }
+        #old_estimates_record > div { width: calc(100% - 2rem); padding: 5px 1rem; border: 1px solid #ccc; border-radius: 5px; margin: .5rem; display: flex;justify-content: space-between;align-items: center; }
+        #old_estimates_record button { width: 120px; height: 48px; border: 0; border-radius: 5px; background-color: #004eb5; color: #fff; cursor: pointer; font-size: 1rem; }
+        progress{ width: 100%;position: relative;-webkit-appearance: none;-moz-appearance: none;border-radius:20px;overflow: hidden;height: 12px; }
         ::-webkit-progress-value { background-color: rgb(32, 110, 255); }
         ::-moz-progress-value { background-color: rgb(32, 110, 255); }
-
         ::-webkit-progress-bar { background-color: rgb(190, 190, 190); }
         ::-moz-progress-bar { background-color: rgb(190, 190, 190); }
     </style>
@@ -392,7 +227,6 @@
 </div>
 
 <div id="cover">
-
     <div id="choose_record">
         <h2>開新的估價單</h2>
         <input id="new_record_input" type="text" placeholder="請輸入名稱">
@@ -933,4 +767,22 @@ function getRecords() {
 </script>
 </body>
 <script src="./usage.js"></script>
+<script>
+
+const remain = getRemain();
+const { totalKB, usageDetail } = getUsage('estimate_records');
+
+const usageBar = document.querySelector('#usage');
+usageBar.setAttribute('max', Number(totalKB) + Number(remain));
+usageBar.setAttribute('value', Number(totalKB));
+
+const remainUsageSpan = document.querySelector('#remain_usage');
+const currentUsageSpan = document.querySelector('#current_usage');
+remainUsageSpan.textContent = `剩餘 ${Number((Number(remain)).toFixed()).toLocaleString('zh-TW')} kb`
+currentUsageSpan.textContent = Number(totalKB) + ' kb'
+
+const usage_percentage = document.querySelector('#usage_percentage');
+usage_percentage.textContent = `目前用量: ${ ((Number(totalKB) / (Number(totalKB) + Number(remain)).toFixed() * 100).toFixed(2)) || 0}%`;
+
+</script>
 </html>

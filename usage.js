@@ -23,8 +23,6 @@ function getRemain(probeKey = '__probe__') {
     localStorage.removeItem(probeKey);
     const totalBytes = best * 1024 + keyBytes;
     const totalKB = (totalBytes / 1024).toFixed();
-    console.log(totalBytes)
-
     return totalKB;
 }
 
@@ -99,27 +97,3 @@ function getUsage(key = 'estimate_records') {
     const totalKB = (totalBytes / 1024).toFixed(2);
     return { totalKB, usageDetail };
 }
-
-
-const remain = getRemain();
-const { totalKB, usageDetail } = getUsage();
-
-// console.log(`📦 localStorage 總用量： ${totalKB} KB`)
-// console.log(`\n📋 localStorage 使用明細：`)
-// usageDetail.forEach( usageItem => {
-//     console.log(`\n🔑 ${usageItem.customerName} = ${usageItem.usageKB} KB<br>`)
-// });
-// console.log(`\n\n剩餘容量： ${remain} KB`)
-
-const usageBar = document.querySelector('#usage');
-usageBar.setAttribute('max', Number(totalKB) + Number(remain));
-usageBar.setAttribute('value', Number(totalKB));
-
-const remainUsageSpan = document.querySelector('#remain_usage');
-const currentUsageSpan = document.querySelector('#current_usage');
-remainUsageSpan.textContent = `剩餘 ${Number((Number(remain)).toFixed()).toLocaleString('zh-TW')} kb`
-currentUsageSpan.textContent = Number(totalKB) + ' kb'
-
-const usage_percentage = document.querySelector('#usage_percentage');
-usage_percentage.textContent = `目前用量: ${ ((Number(totalKB) / (Number(totalKB) + Number(remain)).toFixed() * 100).toFixed(2)) || 0}%`;
-
