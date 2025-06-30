@@ -403,7 +403,7 @@
         <h2 id="usage_percentage" style="margin-top: 32px;">目前用量</h2>
         <div style="position: relative;">
             <progress id="usage" value="0" max="100"></progress>
-            <span id="remain_usage" style="position: absolute; right: 0; top: -14px; text-align: right;">max</span>
+            <span id="max_usage" style="position: absolute; right: 0; top: -14px; text-align: right;">max</span>
             <span id="current_usage" style="position: absolute; left: 0; bottom: -24px; text-align: center;">current</span>
         </div>
 
@@ -426,7 +426,9 @@ window.onload = function() {
     if ( currentRecord.length === 0 ) {
         document.querySelector('#old_estimates_record_title').remove();
         document.querySelector('#old_estimates_record').remove();
+        // document.querySelector('#choose_record').style.height = '230px';
     } else {
+        // document.querySelector('#choose_record').style.height = '';
         currentRecord.forEach( (record, index) => {
             records_html += `
                 <div>

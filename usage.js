@@ -115,12 +115,10 @@ const usageBar = document.querySelector('#usage');
 usageBar.setAttribute('max', Number(totalKB) + Number(remain));
 usageBar.setAttribute('value', Number(totalKB));
 
-const remainUsageSpan = document.querySelector('#remain_usage');
+const maxUsageSpan = document.querySelector('#max_usage');
 const currentUsageSpan = document.querySelector('#current_usage');
-remainUsageSpan.textContent = `剩餘 ${Number((Number(remain)).toFixed()).toLocaleString('zh-TW')} kb`
-currentUsageSpan.textContent = Number(totalKB).toLocaleString('zh-TW') + ' kb'
+maxUsageSpan.textContent = (Number(totalKB) + Number(remain)).toFixed() + ' kb'
+currentUsageSpan.textContent = Number(totalKB) + ' kb'
 
 const usage_percentage = document.querySelector('#usage_percentage');
-const percen = ((Number(totalKB) / (Number(totalKB) + Number(remain)).toFixed() * 100).toFixed(2)) || 0;
-usage_percentage.textContent = `目前用量: ${ percen }%`;
-currentUsageSpan.style.left = `${percen}%`
+usage_percentage.textContent = `目前用量: ${ ((Number(totalKB) / (Number(totalKB) + Number(remain)).toFixed() * 100).toFixed(2)) || 0}%`;
