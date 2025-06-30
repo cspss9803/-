@@ -9,31 +9,25 @@
 <style>
 * { margin:0; padding:0; border:0; position:relative; box-sizing:border-box; font-family:'微軟正黑體'; }
 button { width: 120px; height: 48px; border-radius: 5px; background-color:#1a63ff; color:#fff; cursor:pointer;font-size:1rem; }
-body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200px; }
+body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200px; overflow-x: auto; }
 :root { --main-color: #b50000; }
 </style>
 </head>
 <body>
 
-<div style="display: flex; gap: 20px;">
-
+<div style="white-space: nowrap">
     <!-- 左側按鈕列 -->
-    <div>
-        <button style="visibility: hidden;width:150px;z-index:-1;"></button>
-        <button style="background-color: #a000b5; position: absolute; top: 0; left: 32px;" onclick="clearAll()">清空</button>
-        <button style="background-color: #0039b5; position: absolute; bottom: 100px; left: 32px;" onclick="addTableRow(document.querySelector('tbody').children.length+1);save()">新增列</button>
-        <button style="background-color: #b50000; position: absolute; bottom: 155px; left: 32px;" onclick="const tbody=document.querySelector('tbody');if(tbody.children.length>1){tbody.removeChild(tbody.lastElementChild)}save()">刪除列</button>
-    </div>
+    <div style="display: inline-block; margin-right: 16px; width: 150px;"></div>
 
     <!-- 表單 -->
-    <div style="min-width: 210mm;width: min-content;height: min-content;margin: 0 0 50px; background-color: white;user-select: none;">
-        <div id="content" style="width: 100%;padding: 3mm 10mm 10mm;background-color: white;">
+    <div style="display: inline-block;min-width: 210mm;width: min-content;height: min-content;margin: 0 0 50px; background-color: white;user-select: none;">
+        <div id="content" style="width: 100%;padding: 3mm 10mm 10mm;background-color: white; min-width: 0;">
             <!-- 標題 -->
             <h1 style="text-align: center; letter-spacing: 8pt; font-size: 32pt; color: var(--main-color);">工作紀錄單</h1>
             <hr style="border: 1pt solid var(--main-color); margin: 8pt 0; width: 100%; left: 50%; transform: translateX(-50%);"/>
 
             <!-- 員工名稱 -->
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center; margin-right: 64px;">
                 <style>#staffName::before { content: ""; position: absolute; bottom: 0; width: calc(100% + 96pt); left: 0; height: 2pt; background-color: var(--main-color); }</style>
                 <div oninput="save()" id="staffName" contenteditable="true" style=" min-width: 150pt;font-size: 18pt;letter-spacing: 2pt;height: 32pt;padding: 5pt 16pt 0 16pt;"></div>
                 <span style="font-size: 18pt; white-space: nowrap; margin-left: 5pt; color: var(--main-color);">先生/小姐</span>
@@ -84,14 +78,18 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
             </table>
 
         </div>
+        
+        <div style="padding-top: 40px; background-color: #ccc;">
+            <button onclick="sharePDF()" style="width: 100%; height: 60px; background-color: var(--main-color);">分享工作紀錄單</button>
+        </div>
+        <button style="background-color: #a000b5; position: absolute; top: 0; left: -150px;" onclick="clearAll()">清空</button>
+        <button style="background-color: #0039b5; position: absolute; bottom: 200px; left: -150px;" onclick="addTableRow(document.querySelector('tbody').children.length+1);save()">新增列</button>
+        <button style="background-color: #b50000; position: absolute; bottom: 255px; left: -150px;" onclick="const tbody=document.querySelector('tbody');if(tbody.children.length>1){tbody.removeChild(tbody.lastElementChild)}save()">刪除列</button>
+        <button style="background-color: #ca0000; position: absolute; top: 0; right: -200px; width: 180px;" onclick="deleteWorkSheet()">刪除這張工作紀錄單</button>
     </div>
 
     <!-- 右側按鈕列 -->
-    <div>
-        <button style="visibility: hidden;width:150px;z-index:-1;"></button>
-        <button style="background-color: #ca0000; position: absolute; top: 0; left: 0; width: 180px;" onclick="deleteWorkSheet()">刪除這張工作紀錄單</button>
-    </div>
-
+    <div style="display: inline-block; margin-left: 16px; width: 200px; height: 100%;"></div>
 </div>
 
 <!-- 儲檔選擇介面 -->
@@ -227,6 +225,60 @@ function clearAll() {
         document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
     }
     save();
+}
+
+async function sharePDF() {
+    const element = document.getElementById('content');
+    window.scrollTo(0, 0);
+    // element.style.left = '-2mm'
+
+    const rect = element.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height + 1;
+
+    const fileName = `估價單-${document.querySelector('#staffName').innerText}.pdf`;
+    const pdfBlob = await html2pdf()
+        .from(element)
+        .set({
+            margin: 0,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: {
+            scale: 2 // 提高清晰度，值越大越清楚，但檔案越大
+            },
+                jsPDF: {
+                unit: 'px',        // 使用像素做單位（這是關鍵）
+                format: [width, height],    // 自動根據內容決定頁面大小
+                orientation: height > width ? 'portrait' : 'landscape' // portrait、landscape
+            }
+        }).toPdf().output('blob')
+    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+    navigator.share({
+        title: fileName,
+        text: '請查看工作紀錄單',
+        files: [file]
+    }).catch(err => console.error('分享失敗:', err));
+
+    // await html2pdf()
+    //     .from(element)
+    //     .set({
+    //         filename: '估價單.pdf',
+    //         margin: 0,
+    //         image: { type: 'jpeg', quality: 1 },
+    //         html2canvas: {
+    //         scale: 2, // 提高清晰度，值越大越清楚，但檔案越大
+    //         },
+    //             jsPDF: {
+    //             unit: 'px',        // 使用像素做單位（這是關鍵）
+    //             format: [width, height],    // 自動根據內容決定頁面大小
+    //             orientation: height > width ? 'portrait' : 'landscape'
+    //         }
+    //     })
+    //     .save();
+
+
+    // 完成後恢復原始樣式，讓網頁看起來正常
+    element.style.left = '0'
 }
 </script>
 
