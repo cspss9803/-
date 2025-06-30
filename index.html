@@ -217,7 +217,7 @@
         }
 
         #cover {
-            width: 100vw;
+            width: 100%;
             height: 100%;
             position: fixed;
             top: 0;
@@ -226,7 +226,7 @@
             z-index: 1;
         }
         #choose_record {
-            position: fixed;
+            position: absolute;
             top: 50px;
             left: 50%;
             transform: translateX(-50%);
@@ -265,7 +265,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-<div id="container">
+<div id="container" style="display: none;">
     <div id="version">1.0.1</div>
     <button class="btn" id="clearAll">全部清空</button>
     <button class="btn" id="addNewTr">新增一行</button>
@@ -373,21 +373,25 @@
     </div>
 </div>
 
-<div id="cover"></div>
-<div id="choose_record">
-    <h2>開新的估價單</h2>
-    <input id="new_record_input" type="text" placeholder="請輸入名稱">
-    <button id="new_record_btn" disabled>
-        確定
-    </button>
+<div id="cover">
 
-    <h2 id="old_estimates_record_title" style="margin-top: 36px;">舊的估價單</h2>
-    <div id="old_estimates_record" style="width: 100%; border: 1px solid #ccc; margin-top: 8px; height: 300px; border-radius: 5px; overflow-y: scroll;">
-        <div>
-            <h3>社口國小</h3>
-            <button>打開</button>
+    <div id="choose_record">
+        <h2>開新的估價單</h2>
+        <input id="new_record_input" type="text" placeholder="請輸入名稱">
+        <button id="new_record_btn" disabled>
+            確定
+        </button>
+
+        <h2 id="old_estimates_record_title" style="margin-top: 36px;">舊的估價單</h2>
+        <div id="old_estimates_record" style="width: 100%; border: 1px solid #ccc; margin-top: 8px; height: 300px; border-radius: 5px; overflow-y: scroll;">
+            <div>
+                <h3>社口國小</h3>
+                <button>打開</button>
+            </div>
         </div>
     </div>
+</div>
+
 </div>
 <script>
 let isRemarkVisible = true;
@@ -430,6 +434,7 @@ document.querySelector('#new_record_btn').addEventListener('click', (e) => {
     document.querySelector('#customerName>div[contenteditable="true"]').textContent = recordName;
     document.querySelector('#choose_record').remove();
     document.querySelector('#cover').style.display = 'none';
+    document.querySelector('#container').style.display = '';
     const recordCount = getRecords().length;
     if( recordCount === 0 ) { currentRecordIndex = 0; }
     else { currentRecordIndex = recordCount; }
@@ -815,6 +820,7 @@ function loadFromLocalStorage( index ) {
     currentRecordIndex = index;
     document.querySelector('#choose_record').remove();
     document.querySelector('#cover').style.display = 'none';
+    document.querySelector('#container').style.display = '';
 
     const currentRecord = getRecords();
     const record = findRecord( index );
