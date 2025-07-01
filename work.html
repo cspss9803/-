@@ -61,7 +61,7 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
                     select { -webkit-appearance: none;appearance: none;width: 100%;height: 100%;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 14px;position: absolute;top: 0;left: 0; }
                     input[type="date"] { background: transparent; color:#000; font-weight:bolder;width: 100%;height: 100%;text-align:center;}
                     input[type="date"]::-webkit-calendar-picker-indicator {background: transparent;bottom: 0;color: transparent;cursor: pointer;height: auto;left: 0;position: absolute;right: 0;top: 0;width: auto;}
-                    input[type="date"] { -webkit-appearance: none; }
+                    input[type="date"] { -webkit-appearance: none; appearance: none; }
                     .customizeWorkTime { pointer-events: none; width:100%; height: 100%; display: flex; padding: 0 14px; align-items: center; justify-content: center; }
                 </style>
                 <tbody></tbody>
@@ -111,7 +111,7 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
                 ::-webkit-progress-bar { background-color: rgb(190, 190, 190); }
                 ::-moz-progress-bar { background-color: rgb(190, 190, 190); }
             </style>
-            <progress id="usage" value="0" max="100" style="width: 100%;position: relative;-webkit-appearance: none;-moz-appearance: none;border-radius:20px; overflow: hidden; height: 12px;"></progress>
+            <progress id="usage" value="0" max="100" style="width: 100%;position: relative; appearance: none; -webkit-appearance: none;-moz-appearance: none;border-radius:20px; overflow: hidden; height: 12px;"></progress>
             <span id="remain_usage" style="position: absolute; right: 0; top: -14px; text-align: right;">max</span>
             <span id="current_usage" style="position: absolute; left: 0; bottom: -24px; text-align: center;">current</span>
         </div>

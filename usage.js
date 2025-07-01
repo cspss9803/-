@@ -59,7 +59,7 @@ function getRemain(probeKey = '__probe__') {
 //     return { totalKB, usageDetial };
 // }
 
-function getUsage(key = 'estimate_records') {
+function getUsage(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return { totalKB: 0, usageDetail: [] };
 
