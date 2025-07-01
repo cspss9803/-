@@ -58,10 +58,11 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
 
                 <!-- 表體 -->
                 <style>
-                    select { -webkit-appearance: none;appearance: none;width: 100%;height: 100%;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 14px; }
+                    select { -webkit-appearance: none;appearance: none;width: 100%;height: 100%;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 14px;position: absolute;top: 0;left: 0; }
                     input[type="date"] { background: transparent; color:#000; font-weight:bolder;width: 100%;height: 100%;text-align:center;}
                     input[type="date"]::-webkit-calendar-picker-indicator {background: transparent;bottom: 0;color: transparent;cursor: pointer;height: auto;left: 0;position: absolute;right: 0;top: 0;width: auto;}
-                    input[type="date"] { -webkit-appearance: none;}
+                    input[type="date"] { -webkit-appearance: none; }
+                    .customizeWorkTime { pointer-events: none; width:100%; height: 100%; display: flex; padding: 0 14px; align-items: center; justify-content: center; }
                 </style>
                 <tbody></tbody>
 
@@ -119,12 +120,19 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
             <style>#old_work_record > div {width: calc(100% - 2rem); padding: 5px 1rem; border: 1px solid #ccc; border-radius: 5px; margin: .5rem; display: flex;justify-content: space-between;align-items: center;}</style>
         </div>
     </div>
+    <div id="setCustomizeWorkTime" style="display: none; position: absolute;top: 50px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 750px;min-width: 300px;padding: 2rem;background-color: #fff;border-radius: 10px;max-height: 600px;overflow-y: auto;z-index: 3;">
+        <h2>自訂工作時間</h2>
+        <input id="setCustomizeWorkTime_input" type="text" placeholder="請輸入自訂的工作時間" oninput="const cbtn=document.querySelector('#setCustomizeWorkTime_btn');if(event.target.value.trim()===''){cbtn.setAttribute('disabled',true);}else{cbtn.removeAttribute('disabled');}" style="width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;">
+        <style>#setCustomizeWorkTime_btn:disabled { background-color: #ccc; cursor: not-allowed; }</style>
+        <button disabled id="setCustomizeWorkTime_btn" style="margin-top: 8px;" onclick="setCustomizeWorkTime()">確定</button>
+    </div>
 </div>
 
 </body>
 <script>
 const STORAGENAME = 'work_records';
 let currentRecordIndex = -1;
+let currentCustomizeWorkTime = null;
 
 window.onload = function() {
     const currentRecord = getRecords();
@@ -148,11 +156,13 @@ function addTableRow( index ){
         <td>${ index }</td>
         <td><input type="date" onchange="save()"/></td>
         <td>
-            <select onchange="save()">
+            <select onchange="changeSelectValue(event)">
                 <option></option>
                 <option>整天</option>
                 <option>半天</option>
+                <option>自訂</option>
             </select>
+            <div class="customizeWorkTime"></div>
         </td>
         <td><span contenteditable="true" oninput="save()"></span></td>
         <td><span contenteditable="true" oninput="save()"></span></td>
@@ -161,13 +171,39 @@ function addTableRow( index ){
     document.querySelector('tbody').appendChild(tr);
 }
 
+function setCustomizeWorkTime() {
+    const workTime = document.querySelector('#setCustomizeWorkTime_input');
+    currentCustomizeWorkTime.textContent = workTime.value.trim();
+    currentCustomizeWorkTime = null;
+    workTime.value = "";
+    document.querySelector('#setCustomizeWorkTime_btn').setAttribute('disabled',true);
+    document.querySelector('#cover').style.display = 'none';
+    save();
+}
+
 function openNewWorkSheet(){
     currentRecordIndex = getRecords().length;
     const staff = document.querySelector('#new_record_input').value.trim();
     document.querySelector('#staffName').textContent = staff;
     for(let i = 0; i < 5; i++) { addTableRow(i+1) }
-    document.querySelector('#cover').remove();
+    document.querySelector('#choose_record').remove();
+    document.querySelector('#cover').style.display = 'none';
     save();
+}
+
+function changeSelectValue( e ) {
+    const select = e.target;
+    const customizeWorkTime = select.parentNode.querySelector('.customizeWorkTime');
+    if( select.selectedIndex === 3 ) { 
+        currentCustomizeWorkTime = customizeWorkTime;
+        document.querySelector('#cover').style.display = 'block';
+        document.querySelector('#setCustomizeWorkTime').style.display = 'block';
+        customizeWorkTime.style.backgroundColor = '#fff';
+    } else {
+        customizeWorkTime.textContent = '';
+        customizeWorkTime.style.backgroundColor = '';
+        save();
+    }
 }
 
 function save() {
@@ -178,6 +214,7 @@ function save() {
         return {
             date: cells[1].querySelector('input[type="date"]').value,
             workTime: cells[2].querySelector('select').selectedIndex,
+            customizeWorkTime: cells[2].querySelector('.customizeWorkTime').textContent,
             place: cells[3].querySelector('span[contenteditable="true"]').textContent,
             content: cells[4].querySelector('span[contenteditable="true"]').textContent,
             remark: cells[5].querySelector('span[contenteditable="true"]').textContent
@@ -193,6 +230,9 @@ function save() {
 
 function load(index) {
     currentRecordIndex = index;
+    document.querySelector('#choose_record').remove();
+    document.querySelector('#cover').style.display = 'none';
+
     const savedRecord = getRecords()[currentRecordIndex]
     const works = savedRecord.works;
     const rowCount = works.length;
@@ -202,12 +242,15 @@ function load(index) {
         const tds = tr.querySelectorAll('td');
         tds[1].querySelector('input[type="date"]').value = works[index].date;
         tds[2].querySelector('select').selectedIndex = works[index].workTime;
+
+        if( works[index].workTime === 3 ) { tds[2].querySelector('.customizeWorkTime').style.backgroundColor = '#fff'; }
+        tds[2].querySelector('.customizeWorkTime').textContent = works[index].customizeWorkTime;
+
         tds[3].querySelector('span[contenteditable="true"]').textContent =  works[index].place;
         tds[4].querySelector('span[contenteditable="true"]').textContent =  works[index].content;
         tds[5].querySelector('span[contenteditable="true"]').textContent =  works[index].remark;
     });
     document.querySelector('#overallRemark').textContent = savedRecord.remark;
-    document.querySelector('#cover').remove();
 }
 
 function deleteWorkSheet() {
