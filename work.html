@@ -156,11 +156,11 @@ function addTableRow( index ){
         <td>${ index }</td>
         <td><input type="date" onchange="save()"/></td>
         <td>
-            <select onchange="changeSelectValue(event)">
+            <select onchange="changeSelectValue(event)" onpointerdown="this.selectedIndex=0;save()">
                 <option></option>
                 <option>整天</option>
                 <option>半天</option>
-                <option onclick="alert('a')">自訂</option>
+                <option>自訂</option>
             </select>
             <div class="customizeWorkTime"></div>
         </td>
