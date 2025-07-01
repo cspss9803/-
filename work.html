@@ -81,7 +81,7 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
         </div>
         
         <div style="padding-top: 8px; background-color: #ccc;">
-            <span style="color: #777;">v1.0.2</span>
+            <span style="color: #777;">v1.0.3</span>
         </div>
         <div style="padding-top: 40px; background-color: #ccc;">
             <button onclick="sharePDF()" style="width: 100%; height: 60px; background-color: var(--main-color);">分享工作紀錄單</button>
@@ -258,6 +258,8 @@ function deleteWorkSheet() {
         const currentRecord = getRecords();
         currentRecord.splice(currentRecordIndex, 1);
         localStorage.setItem(STORAGENAME, JSON.stringify(currentRecord));
+        document.querySelector('#cover').style.display = 'block';
+        document.querySelector('#setCustomizeWorkTime').style.display = 'none';
         window.location.reload();
     }
 }
