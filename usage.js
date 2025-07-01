@@ -23,7 +23,7 @@ function getRemain(probeKey = '__probe__') {
     localStorage.removeItem(probeKey);
     const totalBytes = best * 1024 + keyBytes;
     const totalKB = (totalBytes / 1024).toFixed();
-    return totalKB;
+    return Number(totalKB);
 }
 
 // function getUsage() {
@@ -89,11 +89,11 @@ function getUsage(key) {
         totalBytes += bytes;
         usageDetail.push({
             index,
-            usageKB: (bytes / 1024).toFixed(2),
+            usageKB: Number((bytes / 1024).toFixed(2)),
             customerName: item.customerName
         });
     });
 
     const totalKB = (totalBytes / 1024).toFixed(2);
-    return { totalKB, usageDetail };
+    return { totalKB: Number(totalKB), usageDetail };
 }
