@@ -339,8 +339,8 @@ const remain = getRemain();
 const { totalKB, usageDetail } = getUsage(STORAGENAME);
 document.querySelector('#usage').setAttribute('max', totalKB + remain);
 document.querySelector('#usage').setAttribute('value', totalKB);
-document.querySelector('#remain_usage').textContent = `剩餘 ${Number((Number(remain)).toFixed()).toLocaleString('zh-TW')} kb`;
-document.querySelector('#current_usage').textContent = Number(totalKB) + ' kb'
-document.querySelector('#usage_percentage').textContent = `目前用量: ${ (((Number(totalKB) / (Number(totalKB) + Number(remain)) || 0).toFixed() * 100).toFixed(2)) }%`;
+document.querySelector('#remain_usage').textContent = `剩餘 ${Number(remain.toFixed()).toLocaleString('zh-TW')} kb`;
+document.querySelector('#current_usage').textContent = totalKB + ' kb'
+document.querySelector('#usage_percentage').textContent = `目前用量: ${ ((totalKB / (totalKB + remain)) * 100).toFixed(2) }%`;
 </script>
 </html>

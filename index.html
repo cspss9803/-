@@ -716,6 +716,6 @@ document.querySelector('#usage').setAttribute('value', totalKB);
 if( remain === 0 ) { localStorage.clear(); }
 document.querySelector('#remain_usage').textContent = `剩餘 ${Number(remain.toFixed()).toLocaleString('zh-TW')} kb`
 document.querySelector('#current_usage').textContent = totalKB + ' kb'
-document.querySelector('#usage_percentage').textContent = `目前用量: ${ ((totalKB / (totalKB + remain) || 0).toFixed() * 100).toFixed(2) }%`;
+document.querySelector('#usage_percentage').textContent = `目前用量: ${ ((totalKB / (totalKB + remain)) * 100).toFixed(2) }%`;
 </script>
 </html>
