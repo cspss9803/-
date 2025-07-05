@@ -81,7 +81,7 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
         </div>
         
         <div style="padding-top: 8px; background-color: #ccc;">
-            <span style="color: #777;">v1.0.5</span>
+            <span style="color: #777;">v1.0.6</span>
         </div>
         <div style="padding-top: 40px; background-color: #ccc;">
             <button onclick="sharePDF()" style="width: 100%; height: 60px; background-color: var(--main-color);">分享工作紀錄單</button>
@@ -174,7 +174,7 @@ function addTableRow( index ){
 
 function setCustomizeWorkTime() {
     const workTime = document.querySelector('#setCustomizeWorkTime_input');
-    currentCustomizeWorkTime.textContent = workTime.value.trim();
+    currentCustomizeWorkTime.innerText = workTime.value.trim();
     currentCustomizeWorkTime = null;
     workTime.value = "";
     document.querySelector('#setCustomizeWorkTime_btn').setAttribute('disabled',true);
@@ -187,7 +187,7 @@ function setCustomizeWorkTime() {
 function openNewWorkSheet(){
     currentRecordIndex = getRecords().length;
     const staff = document.querySelector('#new_record_input').value.trim();
-    document.querySelector('#staffName').textContent = staff;
+    document.querySelector('#staffName').innerText = staff;
     for(let i = 0; i < 5; i++) { addTableRow(i+1) }
     document.querySelector('#choose_record').remove();
     document.querySelector('#cover').style.display = 'none';
@@ -205,27 +205,27 @@ function changeSelectValue( e ) {
         document.querySelector('#container').style.display = 'none';
         customizeWorkTime.style.backgroundColor = '#fff';
     } else {
-        customizeWorkTime.textContent = '';
+        customizeWorkTime.innerText = '';
         customizeWorkTime.style.backgroundColor = '';
         save();
     }
 }
 
 function save() {
-    const staffName = document.querySelector('#staffName').textContent;
+    const staffName = document.querySelector('#staffName').innerText;
     const rows = Array.from(document.querySelectorAll('tbody>tr'));
     const works = rows.map(row => {
         const cells = row.querySelectorAll('td');
         return {
             date: cells[1].querySelector('input[type="date"]').value,
             workTime: cells[2].querySelector('select').selectedIndex,
-            customizeWorkTime: cells[2].querySelector('.customizeWorkTime').textContent,
-            place: cells[3].querySelector('span[contenteditable="true"]').textContent,
-            content: cells[4].querySelector('span[contenteditable="true"]').textContent,
-            remark: cells[5].querySelector('span[contenteditable="true"]').textContent
+            customizeWorkTime: cells[2].querySelector('.customizeWorkTime').innerText,
+            place: cells[3].querySelector('span[contenteditable="true"]').innerText,
+            content: cells[4].querySelector('span[contenteditable="true"]').innerText,
+            remark: cells[5].querySelector('span[contenteditable="true"]').innerText
         };
     });
-    const remark = document.querySelector('#overallRemark').textContent;
+    const remark = document.querySelector('#overallRemark').innerText;
     
     const record = { staffName, works, remark }
     const currentRecord = getRecords();
@@ -243,20 +243,20 @@ function load(index) {
     const works = savedRecord.works;
     const rowCount = works.length;
     for(let i = 0; i < rowCount; i++) { addTableRow(i+1) }
-    document.querySelector('#staffName').textContent = savedRecord.staffName;
+    document.querySelector('#staffName').innerText = savedRecord.staffName;
     document.querySelectorAll('tbody>tr').forEach( (tr, index) =>{
         const tds = tr.querySelectorAll('td');
         tds[1].querySelector('input[type="date"]').value = works[index].date;
         tds[2].querySelector('select').selectedIndex = works[index].workTime;
 
         if( works[index].workTime === 3 ) { tds[2].querySelector('.customizeWorkTime').style.backgroundColor = '#fff'; }
-        tds[2].querySelector('.customizeWorkTime').textContent = works[index].customizeWorkTime;
+        tds[2].querySelector('.customizeWorkTime').innerText = works[index].customizeWorkTime;
 
-        tds[3].querySelector('span[contenteditable="true"]').textContent =  works[index].place;
-        tds[4].querySelector('span[contenteditable="true"]').textContent =  works[index].content;
-        tds[5].querySelector('span[contenteditable="true"]').textContent =  works[index].remark;
+        tds[3].querySelector('span[contenteditable="true"]').innerText =  works[index].place;
+        tds[4].querySelector('span[contenteditable="true"]').innerText =  works[index].content;
+        tds[5].querySelector('span[contenteditable="true"]').innerText =  works[index].remark;
     });
-    document.querySelector('#overallRemark').textContent = savedRecord.remark;
+    document.querySelector('#overallRemark').innerText = savedRecord.remark;
 }
 
 function deleteWorkSheet() {
@@ -274,10 +274,10 @@ function getRecords() { return JSON.parse(localStorage.getItem(STORAGENAME)) || 
 
 function clearAll() {
     if (confirm('確定要 "清空全部" 嗎？')) {
-        document.querySelectorAll('[contenteditable="true"]:not(#staffName)').forEach(el=>el.textContent='');
+        document.querySelectorAll('[contenteditable="true"]:not(#staffName)').forEach(el=>el.innerText='');
         document.querySelectorAll('input[type="date"]').forEach(el=>el.value='');
         document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
-        document.querySelectorAll('.customizeWorkTime').forEach(el=>{el.style.backgroundColor='';el.textContent=''} )
+        document.querySelectorAll('.customizeWorkTime').forEach(el=>{el.style.backgroundColor='';el.innerText=''} )
     }
     save();
 }
@@ -339,8 +339,8 @@ const remain = getRemain();
 const { totalKB, usageDetail } = getUsage(STORAGENAME);
 document.querySelector('#usage').setAttribute('max', totalKB + remain);
 document.querySelector('#usage').setAttribute('value', totalKB);
-document.querySelector('#remain_usage').textContent = `剩餘 ${Number(remain.toFixed()).toLocaleString('zh-TW')} kb`;
-document.querySelector('#current_usage').textContent = totalKB + ' kb'
-document.querySelector('#usage_percentage').textContent = `目前用量: ${ ((totalKB / (totalKB + remain)) * 100).toFixed(2) }%`;
+document.querySelector('#remain_usage').innerText = `剩餘 ${Number(remain.toFixed()).toLocaleString('zh-TW')} kb`;
+document.querySelector('#current_usage').innerText = totalKB + ' kb'
+document.querySelector('#usage_percentage').innerText = `目前用量: ${ ((totalKB / (totalKB + remain)) * 100).toFixed(2) }%`;
 </script>
 </html>
