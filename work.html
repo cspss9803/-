@@ -81,7 +81,7 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
         </div>
         
         <div style="padding-top: 8px; background-color: #ccc;">
-            <span style="color: #777;">v1.0.4</span>
+            <span style="color: #777;">v1.0.5</span>
         </div>
         <div style="padding-top: 40px; background-color: #ccc;">
             <button onclick="sharePDF()" style="width: 100%; height: 60px; background-color: var(--main-color);">分享工作紀錄單</button>
@@ -157,7 +157,7 @@ function addTableRow( index ){
         <td>${ index }</td>
         <td><input type="date" onchange="save()"/></td>
         <td>
-            <select onchange="changeSelectValue(event)" onpointerdown="this.selectedIndex=0;this.parentNode.querySelector('.customizeWorkTime').textContent=''; save();">
+            <select onchange="changeSelectValue(event)">
                 <option></option>
                 <option>整天</option>
                 <option>半天</option>
