@@ -43,7 +43,7 @@
     
     <button id="toggleRemark" onclick="toggleRemark(event)" style="width: 180px; position: absolute;z-index: 1;top: 180px;right: -32px;transform: translateX(100%);background-color: #00b5b5; ">隱藏備註欄</button>
     <button id="toggleTotalMerge" onclick="toggleTotalMerge(event, getRecords()[currentRecordIndex].mergeTotalValue)" style="width: 180px; position: absolute;z-index: 1;top: 120px;right: -32px;transform: translateX(100%);background-color: #cf6e00;">合併金額</button>
-    <button id="toggleAutoCounting" onclick="toggleAutoCounting(event)" style="width: 180px;position: absolute;z-index: 1;top: 60px;right: -32px;transform: translateX(100%);background-color: #5100b5;">全部自動計算中...</button>
+    <button id="toggleAutoCounting" onclick="toggleAutoCounting(event)" style="display: none; width: 180px;position: absolute;z-index: 1;top: 60px;right: -32px;transform: translateX(100%);background-color: #5100b5;">全部自動計算中...</button>
     <button id="deleteSheet" onclick="deleteSheet()" style="width: 180px;position: absolute;z-index: 1;top: 0;right: -32px;transform: translateX(100%);background-color: #c40000;">刪除這張估價單</button>
     
     <div style="width: 50px; height: 50px;background-color: #004eb5;position: absolute;top: -100px;left: calc(100% + 140px);"></div>
@@ -97,7 +97,8 @@
                 input[type="checkbox"] { -webkit-appearance: none;appearance: none;margin-right: 5pt; aspect-ratio: 1/1; width: 18px; margin-right: -2pt; transform: translateY(-1px); border: 1px solid #333;border-radius: 4px;background-color: white;color: #fff;}
                 input[type="checkbox"]:checked { background-color: var(--main-color); border: 1px solid var(--main-color); }
                 input[type="checkbox"]:checked::before { content: "";position: absolute;top: calc(50% + 1px);left: 50%;transform: translate(-50%, -50%);width: 12px;height: 12px;background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.813 417"><path style="fill:rgb(255,255,255)" d="M159.988 318.582c-3.988 4.012-9.43 6.25-15.082 6.25s-11.094-2.238-15.082-6.25L9.375 198.113c-12.5-12.5-12.5-32.77 0-45.246l15.082-15.086c12.504-12.5 32.75-12.5 45.25 0l75.2 75.203L348.104 9.781c12.504-12.5 32.77-12.5 45.25 0l15.082 15.086c12.5 12.5 12.5 32.766 0 45.246zm0 0"></path></svg>') no-repeat center center;}
-                .unit { -webkit-appearance: none;appearance: none;width: 100%;height: 100%;border: 0;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 8px; }
+                .unit { position: absolute; -webkit-appearance: none;appearance: none;width: 100%;height: 100%;border: 0;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 8px; }
+                .customUnit { width: 100%; height: 100%; z-index: 1; pointer-events: none; background-color: transparent; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 0.9rem; }
                 #tax span:not([contenteditable="true"]) { font-size: 12pt; color: var(--main-color); top: -3pt; }
                 #sign span:not([contenteditable="true"]) {font-size: 12pt;color: var(--main-color); }
                 #sign span:is([contenteditable="true"]) { min-width: 100pt; margin: 0 5pt 0 0; padding: 0 20pt 10pt 10pt; border-bottom: 1px solid var(--main-color); font-size: 18pt; height: 24pt; }
@@ -203,6 +204,12 @@
         </style>
         <div id="old_estimates_record" style="width: 100%; border: 1px solid #ccc; margin-top: 8px; height: 300px; border-radius: 5px; overflow-y: scroll;"></div>
     </div>
+    <div id="setCustomizeUnit" style="display: none; position: absolute;top: 50px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 750px;min-width: 300px;padding: 2rem;background-color: #fff;border-radius: 10px;max-height: 600px;overflow-y: auto;z-index: 3;">
+        <h2>自訂單位</h2>
+        <input id="setCustomizeUnit_input" type="text" placeholder="請輸入自訂的單位" maxlength="1" oninput="const cbtn=document.querySelector('#setCustomizeUnit_btn');if(event.target.value.trim()===''){cbtn.setAttribute('disabled',true);}else{cbtn.removeAttribute('disabled');}" style="width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;">
+        <style>#setCustomizeUnit_btn:disabled { background-color: #ccc; cursor: not-allowed; }</style>
+        <button disabled id="setCustomizeUnit_btn" style="margin-top: 8px;" onclick="setCustomizeUnit()">確定</button>
+    </div>
 </div>
 
 </div>
@@ -212,26 +219,28 @@ let isRemarkVisible = true;
 let isAutoCounting = true;
 let isTotalMerged = false;
 let currentRecordIndex = -1;
+let currentCustomUnit = null;
 
 window.onload = function() {
-    setTodayDate()
+    setTodayDate();
     const currentRecord = getRecords();
-    let records_html = ''
+    let records_html = '';
     if ( currentRecord.length === 0 ) {
         document.querySelector('#old_estimates_record_title').remove();
         document.querySelector('#old_estimates_record').remove();
-        // document.querySelector('#choose_record').style.height = '230px';
     } else {
-        // document.querySelector('#choose_record').style.height = '';
+        const fragment = document.createDocumentFragment();
+        const template = document.createElement("template");
         currentRecord.forEach( (record, index) => {
-            records_html += `
+            template.innerHTML += `
                 <div>
                     <h3>${record.customerName}</h3>
                     <button onclick="load(${index})">打開</button>
                 </div>
             `;
         });
-        document.querySelector('#old_estimates_record').innerHTML = records_html;
+        fragment.appendChild(template.content);
+        document.querySelector('#old_estimates_record').appendChild(fragment);
     }
 };
 
@@ -387,7 +396,7 @@ function addNewTrToTobdy(index, isInit=false){
         <td style="min-width: 120px; width: 120px;"><span contenteditable="true" class="editable-td" oninput="save()"></span></td>
         <td style="min-width: 70px; width: 70px;"><span contenteditable="true" class="editable-td count" oninput="inputCountOrMoney(event)"></span></td>
         <td style="min-width: 30px; width: 30px;">
-            <select class="unit" onchange="save()">
+            <select class="unit" onchange="unitChange(event)">
                 <option></option>
                 <option>式</option>
                 <option>面</option>
@@ -397,12 +406,14 @@ function addNewTrToTobdy(index, isInit=false){
                 <option>組</option>
                 <option>片</option>
                 <option>台</option>
-                <option>件</option>  
+                <option>件</option>
                 <option>口</option>
                 <option>樘</option>
-                <option>輛</option>  
-                <option>坪</option>  
+                <option>輛</option>
+                <option>坪</option>
+                <option>自訂</option>
             </select>
+            <div class="customUnit"></div>
         </td>
         <td style="min-width: 80px; width: 80px;"><span contenteditable="true" class="editable-td money" oninput="inputCountOrMoney(event)"></span></td>
         <td style="min-width: 120px; width: 120px;">
@@ -421,6 +432,29 @@ function removeTrFromTbody() {
     save();
 }
 /*--------------------------*/
+
+function unitChange(e) {
+    const CustomUnit = e.target.parentNode.querySelector('.customUnit')
+    if( e.target.selectedIndex === 14 ) {
+        currentCustomUnit = CustomUnit;
+        CustomUnit.style.backgroundColor = "#fff";
+        document.querySelector('#cover').style.display = 'block';   
+        document.querySelector('#setCustomizeUnit').style.display = 'block';
+    } else {
+        CustomUnit.style.backgroundColor = 'transparent';
+        CustomUnit.textContent = ''
+        save();
+    }
+}
+
+function setCustomizeUnit() {
+    const customUnitInput = document.querySelector('#setCustomizeUnit_input');
+    currentCustomUnit.textContent = customUnitInput.value;
+    customUnitInput.value = '';
+    document.querySelector('#setCustomizeUnit_btn').setAttribute('disabled',true);
+    document.querySelector('#cover').style.display = 'none';
+    save();
+}
 
 function setTodayDate() {
     const today = new Date();
@@ -524,6 +558,7 @@ function save() {
             spec: cells[2].innerText,
             count: cells[3].innerText,
             unit: cells[4].querySelector('select').selectedIndex,
+            customUnit: cells[4].querySelector('.customUnit').innerText,
             price: cells[5].innerText,
             total: cells[6].querySelector('span').innerText,
             remark: cells[7].innerText
@@ -607,9 +642,14 @@ function load( index ) {
         row.querySelector('td:nth-child(3) .editable-td').innerText = estimate.spec;
         row.querySelector('td:nth-child(4) .editable-td').innerText = estimate.count;
         row.querySelector('td:nth-child(5) select').selectedIndex = estimate.unit || 0;
+        row.querySelector('td:nth-child(5) .customUnit').innerText = estimate.customUnit || '';
         row.querySelector('td:nth-child(6) .editable-td').innerText = estimate.price;
         row.querySelector('td:nth-child(7) .single_total').innerText = estimate.total;
         row.querySelector('td:nth-child(8) .editable-td').innerText = estimate.remark;
+
+        if(estimate.unit === 14) {
+            row.querySelector('td:nth-child(5) .customUnit').style.backgroundColor = '#fff';
+        }
     });
     updateSingleTotal(tbody.lastElementChild);
 
