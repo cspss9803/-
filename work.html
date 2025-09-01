@@ -261,6 +261,10 @@ function load(index) {
 
 function deleteWorkSheet() {
     if (confirm('確定要 "刪除張工作紀錄" 嗎？')) {
+        const checkInput = prompt(`請輸入「 確定刪除 」`);
+        if (checkInput === null || checkInput === "") { return; } 
+        else if (checkInput !== '確定刪除') { alert('輸入錯誤，取消刪除'); return; }
+
         const currentRecord = getRecords();
         currentRecord.splice(currentRecordIndex, 1);
         localStorage.setItem(STORAGENAME, JSON.stringify(currentRecord));
@@ -273,13 +277,17 @@ function deleteWorkSheet() {
 function getRecords() { return JSON.parse(localStorage.getItem(STORAGENAME)) || []; }
 
 function clearAll() {
-    if (confirm('確定要 "清空全部" 嗎？')) {
+    if (confirm('確定要 "全部清空" 嗎？')) {
+        const checkInput = prompt(`請輸入「 全部清空 」`);
+        if (checkInput === null || checkInput === "") { return; } 
+        else if (checkInput !== '全部清空') { alert('輸入錯誤，已取消「全部清空」'); return; }
+
         document.querySelectorAll('[contenteditable="true"]:not(#staffName)').forEach(el=>el.innerText='');
         document.querySelectorAll('input[type="date"]').forEach(el=>el.value='');
         document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
         document.querySelectorAll('.customizeWorkTime').forEach(el=>{el.style.backgroundColor='';el.innerText=''} )
+        save();
     }
-    save();
 }
 
 async function sharePDF() {
