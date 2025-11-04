@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-hant">
+<head>
+    <meta charset="UTF-8">
+    <title>WebRTC 分貝監測</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; }
+        #decibelDisplay {
+            font-size: 48px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #0077cc;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="listen_audio();this.remove()">開始</button>
+    <div id="decibelDisplay">-- dB</div>
+    <canvas id="decibelCanvas" width="800" height="200"></canvas>
+</body>
+<script>
+function listen_audio(){
+    // navigator.mediaDevices.getUserMedia({ audio: true })
+    navigator.mediaDevices.getUserMedia({
+        audio: {
+            autoGainControl: false,
+            noiseSuppression: false,
+            echoCancellation: false
+        }
+    })
+
+    
+    .then(stream => {
+        const audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        const processor = audioContext.createScriptProcessor(1024, 1, 1);
+
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+
+        const canvas = document.getElementById('decibelCanvas');
+        const ctx = canvas.getContext('2d');
+        const history = [];
+        const maxPoints = 600; // 1 分鐘，每 100ms 一筆
+
+        processor.onaudioprocess = function(e) {
+            const input = e.inputBuffer.getChannelData(0); // Float32Array
+            let sumSquares = 0;
+            for (let i = 0; i < input.length; i++) {
+                sumSquares += input[i] * input[i];
+            }
+            const rms = Math.sqrt(sumSquares / input.length);
+            const ref = 0.00002; // 20 µPa 標準參考值
+            const db = 20 * Math.log10(rms / ref);
+            const clampedDb = isFinite(db) ? db : -Infinity;
+
+            document.getElementById('decibelDisplay').textContent =
+                clampedDb > -60 ? `${clampedDb.toFixed(1)} dB` : '靜音';
+
+            history.push(clampedDb);
+            if (history.length > maxPoints) history.shift();
+            drawGraph();
+        };
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const minDb = 0;
+            const maxDb = 90;
+            const stepDb = 10;
+            const stepX = canvas.width / maxPoints;
+
+            // 🔳 繪製水平網格線與刻度
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            ctx.font = '12px sans-serif';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+
+            for (let db = minDb; db <= maxDb; db += stepDb) {
+                const y = canvas.height - ((db - minDb) / (maxDb - minDb) * canvas.height);
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+                ctx.fillText(`${db} dB`, canvas.width - 10, y);
+            }
+
+            // 📈 繪製分貝折線圖
+            ctx.beginPath();
+            ctx.strokeStyle = '#0077cc';
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < history.length; i++) {
+                const x = i * stepX;
+                const y = canvas.height - ((history[i] - minDb) / (maxDb - minDb) * canvas.height);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+    })
+    .catch(err => {
+        console.error('麥克風獲取失敗: ', err);
+        alert('麥克風獲取失敗: ' + err.message);
+    });
+}
+</script>
+</html>
