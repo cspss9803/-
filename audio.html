@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-hant">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>WebRTC 分貝監測</title>
     <style>
-        body { text-align: center; font-family: sans-serif; }
+        body { text-align: center; font-family: sans-serif; background-color: #1f1f1f; }
         #decibelDisplay {
             font-size: 48px;
             margin: 20px 0;
@@ -12,30 +13,106 @@
             color: #0077cc;
         }
         canvas {
-            border: 1px solid #ccc;
+            border: 1px solid #333;
             width: 100%;
-            height: 500px;
+            margin: 0 auto;
+            height: 400px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
         }
     </style>
 </head>
 <body>
-    <button onclick="listen_audio();this.remove()">開始</button>
+    <button id="startBtn" style="z-index:1;width:max(50px,95%);height:60px;background-color:#0077cc;color:#fff;font-size:1.2rem;outline:none;border:0;border-radius:5px;position:absolute;left:2.5%;top:50%;transform:translateY(-50%);">開始</button>
     <div id="decibelDisplay">-- dB</div>
-    <canvas id="decibelCanvas" width="800" height="200"></canvas>
-</body>
+    <canvas id="decibelCanvas"></canvas>
 <script>
-function listen_audio(){
-    // navigator.mediaDevices.getUserMedia({ audio: true })
-    navigator.mediaDevices.getUserMedia({
-        audio: {
-            autoGainControl: false,
-            noiseSuppression: false,
-            echoCancellation: false
-        }
-    })
+const canvas = document.getElementById('decibelCanvas');
+const ctx = canvas.getContext('2d');
+const history = [];
+const maxPoints = 600; // 1 分鐘
 
-    
-    .then(stream => {
+// 畫布縮放處理
+function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr,dpr);
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// 計算 dB
+function calculateDb(input) {
+  let sumSquares = 0;
+  for (let i = 0; i < input.length; i++) {
+    sumSquares += input[i] * input[i];
+  }
+  const rms = Math.sqrt(sumSquares / input.length);
+  const ref = 0.00002; // 20 µPa
+  const db = 20 * Math.log10(rms / ref);
+  return isFinite(db) ? db : -Infinity;
+}
+
+// 繪圖
+function drawGraph() {
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+    const minDb = 20;
+    const maxDb = 80;
+    const stepDb = 10;
+    const paddingLeft = 5;
+    const paddingRight = 50;
+    const paddingTop = 20;
+    const paddingBottom = 20;
+    const usableWidth = canvas.clientWidth - paddingLeft - paddingRight;
+    const usableHeight = canvas.clientHeight - paddingTop - paddingBottom;
+    const stepX = usableWidth / maxPoints;
+
+    // 水平網格線與刻度
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = '#aaa';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+    for (let db = minDb; db <= maxDb; db += stepDb) {
+        const y = canvas.clientHeight - paddingBottom - ((db - minDb) / (maxDb - minDb) * usableHeight);
+        ctx.beginPath();
+        ctx.moveTo(paddingLeft, y);
+        ctx.lineTo(canvas.clientWidth - paddingRight, y);
+        ctx.stroke();
+        ctx.fillText(`${db} dB`, canvas.clientWidth - 5, y);
+    }
+
+    // 折線圖
+    ctx.beginPath();
+    ctx.strokeStyle = '#0077cc';
+    ctx.lineWidth = 1.5;
+
+    for (let i = 0; i < history.length; i++) {
+        const x = paddingLeft + i * stepX;
+        const y = canvas.clientHeight - paddingBottom - ((history[i] - minDb) / (maxDb - minDb) * usableHeight);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+}
+
+// 啟動音訊監測
+async function listenAudio() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: { 
+                autoGainControl: false, 
+                noiseSuppression: false, 
+                echoCancellation: false 
+            }
+        });
+
         const audioContext = new AudioContext();
         const source = audioContext.createMediaStreamSource(stream);
         const processor = audioContext.createScriptProcessor(1024, 1, 1);
@@ -43,74 +120,29 @@ function listen_audio(){
         source.connect(processor);
         processor.connect(audioContext.destination);
 
-        const canvas = document.getElementById('decibelCanvas');
-        const ctx = canvas.getContext('2d');
-        const history = [];
-        const maxPoints = 600; // 1 分鐘，每 100ms 一筆
-
-        processor.onaudioprocess = function(e) {
-            const input = e.inputBuffer.getChannelData(0); // Float32Array
-            let sumSquares = 0;
-            for (let i = 0; i < input.length; i++) {
-                sumSquares += input[i] * input[i];
-            }
-            const rms = Math.sqrt(sumSquares / input.length);
-            const ref = 0.00002; // 20 µPa 標準參考值
-            const db = 20 * Math.log10(rms / ref);
-            const clampedDb = isFinite(db) ? db : -Infinity;
+        processor.onaudioprocess = (e) => {
+            const input = e.inputBuffer.getChannelData(0);
+            const db = calculateDb(input);
 
             document.getElementById('decibelDisplay').textContent =
-                clampedDb > -60 ? `${clampedDb.toFixed(1)} dB` : '靜音';
+                db > -60 ? `${db.toFixed(0)} dB` : '靜音';
 
-            history.push(clampedDb);
+            history.push(db);
             if (history.length > maxPoints) history.shift();
             drawGraph();
         };
 
-        function drawGraph() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const minDb = 0;
-            const maxDb = 90;
-            const stepDb = 10;
-            const stepX = canvas.width / maxPoints;
-
-            // 🔳 繪製水平網格線與刻度
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 1;
-            ctx.font = '12px sans-serif';
-            ctx.fillStyle = '#666';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-
-            for (let db = minDb; db <= maxDb; db += stepDb) {
-                const y = canvas.height - ((db - minDb) / (maxDb - minDb) * canvas.height);
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-                ctx.fillText(`${db} dB`, canvas.width - 10, y);
-            }
-
-            // 📈 繪製分貝折線圖
-            ctx.beginPath();
-            ctx.strokeStyle = '#0077cc';
-            ctx.lineWidth = 2;
-
-            for (let i = 0; i < history.length; i++) {
-                const x = i * stepX;
-                const y = canvas.height - ((history[i] - minDb) / (maxDb - minDb) * canvas.height);
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-        }
-
-    })
-    .catch(err => {
-        console.error('麥克風獲取失敗: ', err);
+    } catch (err) {
+        console.error('麥克風獲取失敗:', err);
         alert('麥克風獲取失敗: ' + err.message);
-    });
+    }
 }
+
+// 綁定按鈕
+document.getElementById('startBtn').addEventListener('click', (e) => {
+    listenAudio();
+    e.target.remove();
+});
 </script>
+</body>
 </html>
