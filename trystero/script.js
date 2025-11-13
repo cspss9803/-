@@ -1,76 +1,49 @@
-import {joinRoom} from 'https://esm.run/trystero'
+import { joinRoom } from 'https://esm.run/trystero'
 
 const config = { appId: 'yunTechChat' }
-const room = joinRoom(config, 'cursorRoom')
+const room = joinRoom(config, 'chatRoom')
 
-// 存放其他 peer 的游標 div
-const cursors = {}
+// 建立 action: chat
+const [sendChat, getChat] = room.makeAction('chat')
 
-// 建立一個訊息元素
-function appendMessage(text) {
-    const p = document.createElement('p')
-    p.textContent = text
-    document.body.appendChild(p)
+// DOM 元素
+const chatBox = document.getElementById('chat')
+const input = document.getElementById('messageInput')
+const sendBtn = document.getElementById('sendBtn')
+
+// 工具函式：顯示訊息
+function appendMessage(text, className='msg') {
+    const div = document.createElement('div')
+    div.textContent = text
+    div.className = className
+    chatBox.appendChild(div)
+    chatBox.scrollTop = chatBox.scrollHeight
 }
 
-// 當有人加入
+// 加入/離開提示
 room.onPeerJoin(peerId => {
-    appendMessage(`${peerId} 加入!`)
-    // 建立一個紅色游標代表這個 peer
-    const wrapper = document.createElement('div')
-    wrapper.style.position = 'absolute'
-
-    const div = document.createElement('div')
-    div.className = 'cursor'
-
-    const label = document.createElement('span')
-    label.textContent = peerId
-
-    wrapper.appendChild(div)
-    wrapper.appendChild(label)
-    document.body.appendChild(wrapper)
-
-    cursors[peerId] = wrapper
+    appendMessage(`${peerId} 加入聊天室`, 'system')
 })
-
-// 當有人離開
 room.onPeerLeave(peerId => {
-    appendMessage(`${peerId} 離開!`)
-    if (cursors[peerId]) {
-        cursors[peerId].remove()
-        delete cursors[peerId]
-    }
+    appendMessage(`${peerId} 離開聊天室`, 'system')
 })
 
-// 建立 mouseMove action
-const [sendMove, getMove] = room.makeAction('mouseMove')
-
-// 建立一個 div 代表自己
-const myWrapper = document.createElement('div')
-myWrapper.style.position = 'absolute'
-
-const myCursor = document.createElement('div')
-myCursor.className = 'cursor me'
-
-const myLabel = document.createElement('span')
-myLabel.textContent = 'Me'
-
-myWrapper.appendChild(myCursor)
-myWrapper.appendChild(myLabel)
-document.body.appendChild(myWrapper)
-
-// 追蹤自己的滑鼠並廣播座標
-window.addEventListener('mousemove', e => {
-    myWrapper.style.left = e.clientX + 'px'
-    myWrapper.style.top = e.clientY + 'px'
-    sendMove([e.clientX, e.clientY])
+// 接收訊息
+getChat((msg, peerId) => {
+    appendMessage(`${peerId}: ${msg}`)
 })
 
-// 接收其他 peer 的座標並更新對應 div
-getMove(([x, y], peerId) => {
-    const wrapper = cursors[peerId]
-    if (wrapper) {
-        wrapper.style.left = x + 'px'
-        wrapper.style.top = y + 'px'
+// 送出訊息
+function sendMessage() {
+    const text = input.value.trim()
+    if (text) {
+        appendMessage(`我: ${text}`)
+        sendChat(text)
+        input.value = ''
     }
+}
+
+sendBtn.addEventListener('click', sendMessage)
+input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage()
 })
