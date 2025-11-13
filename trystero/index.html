@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trystero</title>
+    <style>
+        .cursor {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: red;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        div:has(.cursor) {
+            display: flex;
+            justify-content: center;
+        }
+        div:has(.cursor)>span { margin-top: 10px; }
+        .cursor.me { background-color: blue; }
+    </style>
+</head>
+<body>
+    
+</body>
+<script type="module" src="script.js"></script>
+</html>
