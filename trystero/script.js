@@ -1,7 +1,7 @@
 import { joinRoom } from 'https://esm.run/trystero'
 
 // 設定房間 ID (為了避免與原本的聊天室衝突，建議換個 ID 或 Namespace)
-const config = { appId: 'yunTechRPS_Game' }
+const config = { appId: 'yunTechRPS_Game9999' }
 const room = joinRoom(config, 'rpsRoom')
 
 // 建立 action: move (傳送出拳動作)
