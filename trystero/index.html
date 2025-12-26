@@ -3,57 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trystero Chat</title>
+<title>雙人猜拳遊戲 (Trystero)</title>
 <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-        }
-        #chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            background: #f0f0f0;
-        }
-        #inputArea {
-            display: flex;
-            border-top: 1px solid #ccc;
-        }
-        #messageInput {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            font-size: 16px;
-        }
-        #sendBtn {
-            padding: 10px 20px;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        .msg {
-            margin: 5px 0;
-            padding: 5px 10px;
-            background: white;
-        border-radius: 5px;
-        }
-        .system {
-            color: gray;
-            font-style: italic;
-        }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+        background-color: #f4f4f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+    }
+    h1 { color: #333; }
+    #status {
+        margin: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-size: 1.2em;
+        min-width: 300px;
+    }
+    #game-area {
+        display: none; /* 等對手加入後才顯示 */
+        margin-top: 20px;
+    }
+    .btn-move {
+        font-size: 3rem;
+        margin: 10px;
+        padding: 15px;
+        cursor: pointer;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        transition: transform 0.2s, background 0.2s;
+        width: 100px;
+        height: 100px;
+        line-height: 1; /* 修正 emoji 垂直置中 */
+    }
+    .btn-move:hover:not(:disabled) {
+        transform: scale(1.1);
+        background: #eef;
+        border-color: #aaf;
+    }
+    .btn-move:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(100%);
+    }
+    #history {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #666;
+        max-height: 150px;
+        overflow-y: auto;
+        width: 80%;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
 </style>
 </head>
 <body>
-    <div id="chat"></div>
-    <div id="inputArea">
-        <input id="messageInput" type="text" placeholder="輸入訊息..." />
-        <button id="sendBtn">送出</button>
+
+    <h1>✊ 🖐️ ✌️ 雙人猜拳</h1>
+    
+    <div id="status">正在尋找對手...</div>
+
+    <div id="game-area">
+        <button class="btn-move" id="btn-rock" title="石頭">✊</button>
+        <button class="btn-move" id="btn-paper" title="布">🖐️</button>
+        <button class="btn-move" id="btn-scissors" title="剪刀">✌️</button>
     </div>
+
+    <div id="history"></div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
