@@ -468,18 +468,50 @@ function setTodayDate() {
 
 function inputCountOrMoney(e) {
     const span = e.target;
-    let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
-    let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
+    // 把逗號拿掉，取得原始字串
+    let rawValue = span.innerText.replace(/,/g, '');
+    
+    // 允許 0-9 以及小數點 (.)
+    rawValue = rawValue.replace(/[^0-9.]/g, '');
+
+    // 處理多個小數點的情況 (例如輸入 8.5.5，只保留第一個小數點)
+    const parts = rawValue.split('.');
+    if (parts.length > 2) {
+        rawValue = parts[0] + '.' + parts.slice(1).join('');
+    }
+
+    // 格式化顯示 (千分位) 只對整數部分加逗號，小數部分保留原樣
+    let formattedValue = rawValue;
+    if (rawValue !== '') {
+        const integerPart = parts[0];
+        // 如果有小數點，將其接回
+        const decimalPart = parts.length > 1 ? '.' + parts[1] : ''; 
+        
+        // 處理整數部分的千分位 (如果整數部分是空的，例如輸入 .5，則保持空或補0視需求，這裡保持原樣)
+        const formattedInteger = integerPart === '' ? '' : parseInt(integerPart, 10).toLocaleString('zh-TW');
+        
+        // 組合回去
+        formattedValue = formattedInteger + decimalPart;
+    }
+
     if(formattedValue === '非數值') { formattedValue = ''; }
+
+    // 5. 更新畫面
     setTimeout(() => {
-        span.innerText = formattedValue;
-        let range = document.createRange();
-        let sel = window.getSelection();
-        range.selectNodeContents(span);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        updateSingleTotal(span.parentNode.parentNode)
+        if (span.innerText !== formattedValue) {
+            span.innerText = formattedValue;
+            
+            // 重新設定游標位置到最後 (避免輸入時游標亂跳)
+            let range = document.createRange();
+            let sel = window.getSelection();
+            if (span.childNodes.length > 0) {
+                range.selectNodeContents(span);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+        updateSingleTotal(span.parentNode.parentNode);
         setTimeout(()=>{ save() }, 0);
     }, 0);
 }
@@ -489,15 +521,28 @@ function updateSingleTotal(tr) {
     const moneyElm = tr.querySelector('.money');
     const singleTotalElm = tr.querySelector('.single_total');
 
-    // 取得 count 裡的數字字元
-    const count = parseInt(countElm.innerText.replace(/[^0-9]+/g, '')) || 0;
+    // 1. 數量改用 parseFloat 解析 (這樣才能讀取 8.5)
+    // 記得先去掉千分位逗號再解析
+    const count = parseFloat(countElm.innerText.replace(/,/g, '')) || 0;
     
-    const money = parseInt(moneyElm.innerText.replace(/[^0-9]+/g, '')) || 0;
-    let singleTotal = (count * money).toLocaleString('zh-TW');
-    if(singleTotal === '非數值') { singleTotal = ''; }
-    if(singleTotal === '0') { singleTotal = ''; }
+    // 2. 單價也用 parseFloat (雖然通常是整數，但保險起見)
+    const money = parseFloat(moneyElm.innerText.replace(/,/g, '')) || 0;
+    
+    // 3. 計算總和 (數量 x 單價)
+    let totalVal = count * money;
+
+    // 4. 【重要】結果四捨五入取整數
+    // 因為下方的中文大寫轉換 (updateChineseNumber) 邏輯是針對整數設計的 (壹, 貳...)
+    // 如果這裡保留小數 (例如 10.5 元)，會導致總計的中文大寫顯示錯誤。
+    // 一般估價單總金額通常採四捨五入至元。
+    totalVal = Math.round(totalVal); 
+
+    let singleTotal = totalVal.toLocaleString('zh-TW');
+    if(singleTotal === '非數值' || singleTotal === '0') { singleTotal = ''; }
+    
     singleTotalElm.innerText = singleTotal;
-    if(!getRecords()[currentRecordIndex].isTotalMerged === 'true'){
+    
+    if(!getRecords()[currentRecordIndex]?.isTotalMerged){
         updateChineseNumber();
     }
     if( isAutoCounting ) { updateChineseNumber() }
