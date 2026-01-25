@@ -34,7 +34,7 @@
 <body>
 <div id="container" style="display: none;min-width: 210mm;width: min-content;height: min-content;margin: 0 0 50px;left: 180px;background-color: white;user-select: none;">
     <div id="version" style="position: absolute;bottom: calc(120px);left: 0;color: #777;font-size: 1rem;z-index: 1;">
-        1.0.4
+        1.0.5
     </div>
     <button id="clearAll" onclick="document.body.style.display='none';window.location.reload();" style="position: absolute;z-index: 1;top: 0; left: -32px; transform: translateX(-100%); background-color: #000000;">離開</button>
     <button id="clearAll" onclick="clearAll()" style="position: absolute;z-index: 1;top: 148px; left: -32px; transform: translateX(-100%); background-color: #ae00ff;">全部清空</button>
@@ -471,27 +471,38 @@ function inputCountOrMoney(e) {
     // 把逗號拿掉，取得原始字串
     let rawValue = span.innerText.replace(/,/g, '');
     
-    // 允許 0-9 以及小數點 (.)
-    rawValue = rawValue.replace(/[^0-9.]/g, '');
+    // 允許 0-9 以及小數點 (.) 以及 負號 (-)
+    rawValue = rawValue.replace(/[^0-9.-]/g, '');
 
-    // 處理多個小數點的情況 (例如輸入 8.5.5，只保留第一個小數點)
+    // 移除不在開頭的負號 (例如 5-10 變成 510, -5-10 變成 -510)
+    rawValue = rawValue.replace(/(?!^)-/g, '');
+
+    // 處理多個小數點的情況
     const parts = rawValue.split('.');
     if (parts.length > 2) {
         rawValue = parts[0] + '.' + parts.slice(1).join('');
     }
 
-    // 格式化顯示 (千分位) 只對整數部分加逗號，小數部分保留原樣
+    // 格式化顯示 (千分位)
     let formattedValue = rawValue;
-    if (rawValue !== '') {
-        const integerPart = parts[0];
+    if (rawValue !== '' && rawValue !== '-') {
+        // 先暫時移除負號進行數字格式化
+        let sign = '';
+        if (rawValue.startsWith('-')) {
+            sign = '-';
+            rawValue = rawValue.substring(1);
+        }
+
+        const splitParts = rawValue.split('.');
+        const integerPart = splitParts[0];
         // 如果有小數點，將其接回
-        const decimalPart = parts.length > 1 ? '.' + parts[1] : ''; 
+        const decimalPart = splitParts.length > 1 ? '.' + splitParts[1] : ''; 
         
-        // 處理整數部分的千分位 (如果整數部分是空的，例如輸入 .5，則保持空或補0視需求，這裡保持原樣)
+        // 處理整數部分的千分位
         const formattedInteger = integerPart === '' ? '' : parseInt(integerPart, 10).toLocaleString('zh-TW');
         
-        // 組合回去
-        formattedValue = formattedInteger + decimalPart;
+        // 組合回去: 負號 + 整數 + 小數
+        formattedValue = sign + formattedInteger + decimalPart;
     }
 
     if(formattedValue === '非數值') { formattedValue = ''; }
@@ -550,18 +561,34 @@ function updateSingleTotal(tr) {
 
 function updateSingleTotalWhenNotAutoCounting(e){
     const span = e.target;
-    let rawValue = span.innerText.replace(/[^0-9]/g, ''); // 只保留數字
-    let formattedValue = parseInt(rawValue, 10).toLocaleString('zh-TW'); // 格式化為千分位
-    if(formattedValue === '非數值') { formattedValue = ''; }
+    // 允許負號，移除不在開頭的負號
+    let rawValue = span.innerText.replace(/[^0-9-]/g, '').replace(/(?!^)-/g, ''); 
+    
+    // 只有當不只是單獨一個 "-" 且不是空的時候才做格式化
+    let formattedValue = rawValue;
+    if (rawValue !== '' && rawValue !== '-') {
+        // 解析整數
+        const val = parseInt(rawValue, 10);
+        if (!isNaN(val)) {
+            formattedValue = val.toLocaleString('zh-TW');
+        } else {
+            formattedValue = '';
+        }
+    }
+
     setTimeout(() => {
-        span.innerText = formattedValue;
-        let range = document.createRange();
-        let sel = window.getSelection();
-        range.selectNodeContents(span);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        updateChineseNumber()
+        if (span.innerText !== formattedValue) {
+            span.innerText = formattedValue;
+            let range = document.createRange();
+            let sel = window.getSelection();
+            if (span.childNodes.length > 0) {
+                range.selectNodeContents(span);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+        updateChineseNumber();
         setTimeout(()=>{ save() }, 0);
     }, 0);
 }
@@ -570,10 +597,10 @@ function updateChineseNumber() {
     document.querySelectorAll('.chinese-number').forEach(elm => elm.innerText = ''); // 清空所有中文數字顯示
     document.getElementById('total').innerText = ''; // 清空總計顯示
     const total = Array.from(document.querySelectorAll(isTotalMerged? 'div.single_total' : '.single_total'))
-        .reduce((sum, span) => sum + (parseInt(span.innerText.replace(/[^0-9]+/g, '')) || 0), 0);
+        .reduce((sum, span) => sum + (parseInt(span.innerText.replace(/[^0-9-]+/g, '')) || 0), 0); // Regex changed to allow negative parsing
     const chineseNumbers = ['零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖'];
-    const totalArray = `${total}`.split('').map(Number).reverse()
-    if(totalArray.length === 1 && totalArray[0] === 0) return
+    const totalArray = `${Math.abs(total)}`.split('').map(Number).reverse() // Use Math.abs for Chinese numerals mapping
+    if(totalArray.length === 1 && totalArray[0] === 0 && total === 0) return
     totalArray.forEach((num, index) => {
         const chineseNumberElm = document.getElementById(`ch_${index}`);
         if (chineseNumberElm) {
