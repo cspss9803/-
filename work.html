@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 508.928 508.928'%3E%3Cpath style='fill:rgb(255,59,59)' d='M403.712 201.04H256.288L329.792 0 105.216 307.888H252.64l-73.504 201.04z'/%3E%3C/svg%3E">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="html2pdf.bundle.min.js"></script>
     <title>工作紀錄單</title>
 <style>
 * { margin:0; padding:0; border:0; position:relative; box-sizing:border-box; font-family:'微軟正黑體'; }
@@ -38,8 +38,8 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
                 <style>
                     table, th, td { border-collapse: collapse; }
                     th{ background-color: var(--main-color); color: #fff; padding: 8pt 0; border: 1px solid #fff; border-bottom: 0; border-top: 0; font-size: 12pt; letter-spacing: 1pt; font-weight:500; }
-                    th:first-child { border-left: 1px solid var(--main-color); } /* 第一個 th 左邊框設為紅色*/
-                    th:last-child { border-right: 1px solid var(--main-color); } /* 最後的 th 右邊框設為紅色*/
+                    th:first-child { border-left: 1px solid var(--main-color); }
+                    th:last-child { border-right: 1px solid var(--main-color); }
                     td { height: 39px; border: 1px solid var(--main-color); box-sizing: content-box; font-weight: bolder; }
                     td:nth-child(1) { width: 18px; min-width: 18px; max-width: 18px; text-align: center; font-size: 0.7rem; color: var(--main-color);font-weight: bolder; }
                     td>span { width: 100%; display: inline-block; word-wrap: break-word; white-space: nowrap; font-weight: bolder;padding: 8px; }
@@ -81,7 +81,7 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
         </div>
         
         <div style="padding-top: 8px; background-color: #ccc;">
-            <span style="color: #777;">v1.0.6</span>
+            <span style="color: #777;">v1.1.6</span>
         </div>
         <div style="padding-top: 40px; background-color: #ccc;">
             <button onclick="sharePDF()" style="width: 100%; height: 60px; background-color: var(--main-color);">分享工作紀錄單</button>
@@ -101,8 +101,10 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
 <div id="cover" style="width: 100%;height: 100%;position: fixed;top: 0;left: 0;background-color: rgba(0,0,0,.8);z-index: 1;">
     <div id="choose_record" style="position: absolute;top: 50px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 750px;min-width: 300px;padding: 2rem;background-color: #fff;border-radius: 10px;max-height: 600px;overflow-y: auto;z-index: 2;">
         <h2>開新的工作紀錄單</h2>
-        <input id="new_record_input" type="text" placeholder="請輸入員工名稱" oninput="const btn=document.querySelector('#new_record_btn');if(event.target.value.trim()===''){btn.setAttribute('disabled',true);}else{btn.removeAttribute('disabled');}" style="width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;">
-        <style>#new_record_btn:disabled { background-color: #ccc; cursor: not-allowed; }</style>
+        <input id="new_record_input" type="text" placeholder="請輸入員工名稱" oninput="const btnAdd=document.querySelector('#new_record_btn');if(event.target.value.trim()===''){btnAdd.setAttribute('disabled',true);}else{btnAdd.removeAttribute('disabled');}" style="width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;">
+        <style>
+            #new_record_btn:disabled, #export_btn:disabled, #import_btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        </style>
         <button disabled id="new_record_btn" style="margin-top: 8px;" onclick="openNewWorkSheet()">確定</button>
         <h2 id="usage_percentage" style="margin-top: 32px;">目前用量</h2>
         <div style="position: relative;margin-top: 12px;">
@@ -120,6 +122,15 @@ body { background-color: #ccc; overscroll-behavior-y: none; padding: 50px 0 200p
         <div id="old_work_record" style="width: 100%; border: 1px solid #ccc; margin-top: 8px; height: 300px; border-radius: 5px; overflow-y: scroll;">
             <style>#old_work_record > div {width: 100%; padding: 8px 1rem; border-bottom: 1px solid #ccc; display: flex;justify-content: space-between;align-items: center;}</style>
         </div>
+
+        <!-- 匯出與匯入區塊 -->
+        <h2 style="margin-top: 48px;">匯出工作紀錄單備份</h2>
+        <input id="export_input" type="text" placeholder="請輸入「確認匯出」" oninput="const btnExport=document.querySelector('#export_btn');if(event.target.value.trim()==='確認匯出'){btnExport.removeAttribute('disabled');}else{btnExport.setAttribute('disabled',true);}" style="width: 100%; height: 48px; padding-left: 12px; margin-top: 12px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px;">
+        <button disabled id="export_btn" style="margin-top: 8px;" onclick="exportRecords()">確認匯出</button>
+
+        <h2 style="margin-top: 32px;">匯入工作紀錄單備份</h2>
+        <input id="import_input" type="file" accept=".json,application/json" onchange="const btnImport=document.querySelector('#import_btn');if(event.target.files.length>0){btnImport.removeAttribute('disabled');}else{btnImport.setAttribute('disabled',true);}" style="width: 100%; height: 48px; padding: 8px 12px; margin-top: 12px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 5px; background-color: #fff;">
+        <button disabled id="import_btn" style="margin-top: 8px;" onclick="importRecords()">確認匯入</button>
     </div>
     <div id="setCustomizeWorkTime" style="display: none; position: absolute;top: 50px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 750px;min-width: 300px;padding: 2rem;background-color: #fff;border-radius: 10px;max-height: 600px;overflow-y: auto;z-index: 3;">
         <h2>自訂工作時間</h2>
@@ -150,6 +161,59 @@ window.onload = function() {
     });
     document.querySelector('#old_work_record').appendChild(fragment);
 }
+
+/*--- 匯出與匯入功能 ---*/
+function exportRecords() {
+    const exportInput = document.querySelector('#export_input');
+    if (exportInput.value.trim() !== '確認匯出') {
+        alert('請先輸入「確認匯出」');
+        return;
+    }
+    const records = getRecords();
+    if (records.length === 0) {
+        alert('目前沒有任何工作紀錄單可供匯出');
+        return;
+    }
+    const dataStr = JSON.stringify(records, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const today = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `工作紀錄單備份_${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    exportInput.value = '';
+    document.querySelector('#export_btn').setAttribute('disabled', true);
+}
+
+function importRecords() {
+    const fileInput = document.querySelector('#import_input');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('請先選擇要匯入的 JSON 檔案');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) {
+                throw new Error('格式不符');
+            }
+            localStorage.setItem(STORAGENAME, JSON.stringify(importedData));
+            alert('匯入成功！');
+            window.location.reload();
+        } catch (err) {
+            alert('匯入失敗：檔案格式不正確，請確認選擇的是正確的 JSON 備份檔。');
+        }
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+/*--------------------------*/
 
 function addTableRow( index ){
     const tr = document.createElement('tr');
@@ -227,7 +291,7 @@ function save() {
     });
     const remark = document.querySelector('#overallRemark').innerText;
     
-    const record = { staffName, works, remark }
+    const record = { staffName, works, remark };
     const currentRecord = getRecords();
     currentRecord[currentRecordIndex] = record;
     localStorage.setItem(STORAGENAME, JSON.stringify(currentRecord));
@@ -239,7 +303,7 @@ function load(index) {
     document.querySelector('#cover').style.display = 'none';
     document.querySelector('#container').style.display = 'block';
 
-    const savedRecord = getRecords()[currentRecordIndex]
+    const savedRecord = getRecords()[currentRecordIndex];
     const works = savedRecord.works;
     const rowCount = works.length;
     for(let i = 0; i < rowCount; i++) { addTableRow(i+1) }
@@ -285,7 +349,7 @@ function clearAll() {
         document.querySelectorAll('[contenteditable="true"]:not(#staffName)').forEach(el=>el.innerText='');
         document.querySelectorAll('input[type="date"]').forEach(el=>el.value='');
         document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
-        document.querySelectorAll('.customizeWorkTime').forEach(el=>{el.style.backgroundColor='';el.innerText=''} )
+        document.querySelectorAll('.customizeWorkTime').forEach(el=>{el.style.backgroundColor='';el.innerText='';});
         save();
     }
 }
@@ -304,14 +368,14 @@ async function sharePDF() {
             margin: 0,
             image: { type: 'jpeg', quality: 1 },
             html2canvas: {
-            scale: 2 // 提高清晰度，值越大越清楚，但檔案越大
+                scale: 2
             },
-                jsPDF: {
-                unit: 'px',        // 使用像素做單位（這是關鍵）
-                format: [width, height],    // 自動根據內容決定頁面大小
-                orientation: height > width ? 'portrait' : 'landscape' // portrait、landscape
+            jsPDF: {
+                unit: 'px',
+                format: [width, height],
+                orientation: height > width ? 'portrait' : 'landscape'
             }
-        }).toPdf().output('blob')
+        }).toPdf().output('blob');
     const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
     navigator.share({
@@ -319,25 +383,7 @@ async function sharePDF() {
         text: '請查看工作紀錄單',
         files: [file]
     }).catch(err => console.error('分享失敗:', err));
-
-    // await html2pdf()
-    //     .from(element)
-    //     .set({
-    //         filename: '工作紀錄單.pdf',
-    //         margin: 0,
-    //         image: { type: 'jpeg', quality: 1 },
-    //         html2canvas: {
-    //         scale: 2, // 提高清晰度，值越大越清楚，但檔案越大
-    //         },
-    //             jsPDF: {
-    //             unit: 'px',        // 使用像素做單位（這是關鍵）
-    //             format: [width, height],    // 自動根據內容決定頁面大小
-    //             orientation: height > width ? 'portrait' : 'landscape'
-    //         }
-    //     })
-    //     .save();
 }
-
 </script>
 
 <script src="./usage.js"></script>
@@ -348,7 +394,7 @@ const { totalKB, usageDetail } = getUsage(STORAGENAME);
 document.querySelector('#usage').setAttribute('max', totalKB + remain);
 document.querySelector('#usage').setAttribute('value', totalKB);
 document.querySelector('#remain_usage').innerText = `剩餘 ${Number(remain.toFixed()).toLocaleString('zh-TW')} kb`;
-document.querySelector('#current_usage').innerText = totalKB + ' kb'
+document.querySelector('#current_usage').innerText = totalKB + ' kb';
 document.querySelector('#usage_percentage').innerText = `目前用量: ${ ((totalKB / (totalKB + remain)) * 100).toFixed(2) }%`;
 </script>
 </html>

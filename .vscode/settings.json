@@ -1,5 +1,5 @@
 {
-  "liveServer.settings.host": "192.168.1.204",
+  "liveServer.settings.host": "192.168.0.101",
   "liveServer.settings.port": 5500,
   "liveServer.settings.https": {
     "enable": true,
