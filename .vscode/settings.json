@@ -1,6 +1,6 @@
 {
   "liveServer.settings.host": "192.168.0.101",
-  "liveServer.settings.port": 5500,
+  "liveServer.settings.port": 5533,
   "liveServer.settings.https": {
     "enable": true,
     "cert": "D:\\Users\\cspss\\Desktop\\-\\server.cert",

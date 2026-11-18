@@ -103,9 +103,9 @@
                 #validDate span:nth-child(1) { font-size: 12pt; color: var(--main-color); }
                 #validDate .date [contenteditable="true"] { color: black; }
                 #tax { margin-top: 5pt; }
-                input[type="checkbox"] { -webkit-appearance: none;appearance: none;margin-right: 5pt; aspect-ratio: 1/1; width: 18px; margin-right: -2pt; transform: translateY(-1px); border: 1px solid #333;border-radius: 4px;background-color: white;color: #fff;}
-                input[type="checkbox"]:checked { background-color: var(--main-color); border: 1px solid var(--main-color); }
-                input[type="checkbox"]:checked::before { content: "";position: absolute;top: calc(50% + 1px);left: 50%;transform: translate(-50%, -50%);width: 12px;height: 12px;background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.813 417"><path style="fill:rgb(255,255,255)" d="M159.988 318.582c-3.988 4.012-9.43 6.25-15.082 6.25s-11.094-2.238-15.082-6.25L9.375 198.113c-12.5-12.5-12.5-32.77 0-45.246l15.082-15.086c12.504-12.5 32.75-12.5 45.25 0l75.2 75.203L348.104 9.781c12.504-12.5 32.77-12.5 45.25 0l15.082 15.086c12.5 12.5 12.5 32.766 0 45.246zm0 0"></path></svg>') no-repeat center center;}
+                .checkbox { display: inline-block; width: 18px; height: 18px; margin-right: 2pt; transform: translateY(-1px); border: 1px solid #333; border-radius: 4px; background-color: white; cursor: pointer; }
+                .checkbox.checked { background-color: var(--main-color); border: 1px solid var(--main-color); }
+                .checkbox.checked::before { content: ""; position: absolute; top: 2px; left: 5px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
                 .unit { position: absolute; -webkit-appearance: none;appearance: none;width: 100%;height: 100%;border: 0;background: transparent;text-align: center;font-weight: bolder;color: #000;font-size: 10pt;padding: 0 8px; }
                 .customUnit { width: 100%; height: 100%; z-index: 1; pointer-events: none; background-color: transparent; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 0.9rem; }
                 #tax span:not([contenteditable="true"]) { font-size: 12pt; color: var(--main-color); top: -3pt; }
@@ -168,10 +168,10 @@
         </div>
         <div id="tax">
             <span style="margin-right: 5pt;">2. 本估價單價格:</span>
-            <input id="taxed" type="checkbox" onchange="document.querySelector('#untax').checked = false;save()">
-            <label for="taxed"><span>含稅</span></label>
-            <input id="untax" type="checkbox" style="margin-left: 20pt;" onchange="document.querySelector('#taxed').checked = false;save()">
-            <label for="untax"><span>不含稅</span></label>
+            <div id="taxed" class="checkbox" onclick="toggleTax('taxed')"></div>
+            <span onclick="toggleTax('taxed')" style="cursor: pointer;">含稅</span>
+            <div id="untax" class="checkbox" style="margin-left: 20pt;" onclick="toggleTax('untax')"></div>
+            <span onclick="toggleTax('untax')" style="cursor: pointer;">不含稅</span>
         </div>
         <div id="sign">
             <span>經手人: </span>
@@ -345,12 +345,21 @@ function clearAll() {
         document.querySelector('#validDays').innerText = '';
         document.getElementById('handler').innerText = '';
         document.getElementById('phone').innerText = '';
-        document.getElementById('taxed').checked = false;
-        document.getElementById('untax').checked = false;
+        document.getElementById('taxed').classList.remove('checked');
+        document.getElementById('untax').classList.remove('checked');
         setTodayDate();
         updateChineseNumber();
         save();
     }
+}
+function toggleTax(id) {
+    const target = document.getElementById(id);
+    const other = document.getElementById(id === 'taxed' ? 'untax' : 'taxed');
+    target.classList.toggle('checked');
+    if (target.classList.contains('checked')) {
+        other.classList.remove('checked');
+    }
+    save();
 }
 function toggleTotalMerge(e, totalvalue=0, isInit=false){
     isTotalMerged = !isTotalMerged;
@@ -654,8 +663,8 @@ function save() {
     const year = document.getElementById('year').innerText;
     const month = document.getElementById('month').innerText;
     const day = document.getElementById('day').innerText;
-    const taxed = document.getElementById('taxed').checked;
-    const untax = document.getElementById('untax').checked;
+    const taxed = document.getElementById('taxed').classList.contains('checked');
+    const untax = document.getElementById('untax').classList.contains('checked');
     const validDays = document.querySelector('#validDays').innerText;
     const handler = document.getElementById('handler').innerText;
     const phone = document.getElementById('phone').innerText;
@@ -741,8 +750,8 @@ function load( index ) {
     if (handler) { document.getElementById('handler').innerText = handler; }
     if (phone) { document.getElementById('phone').innerText = phone; }
 
-    document.getElementById('taxed').checked = taxed;
-    document.getElementById('untax').checked = untax;
+    document.getElementById('taxed').classList.toggle('checked', Boolean(taxed));
+    document.getElementById('untax').classList.toggle('checked', Boolean(untax));
     
     const tbody = document.querySelector('#estimateBody');
     estimates.forEach((estimate, index) => {
